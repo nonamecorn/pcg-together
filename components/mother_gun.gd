@@ -59,7 +59,7 @@ func _ready() -> void:
 	rng.randomize()
 
 func get_pof() -> Vector2:
-	return $gun_container/POF.global_position
+	return $POF.global_position
 
 func _process(_delta: float) -> void:
 	if !player_handled: return
@@ -79,10 +79,10 @@ func _process(_delta: float) -> void:
 func add_part(node_path : NodePath):
 	var node = load(node_path)
 	var node_inst = node.instantiate()
-	$gun_container/modules.find_child(node_inst.type).add_child(node_inst)
+	$modules.find_child(node_inst.type).add_child(node_inst)
 
 func reset_part(part_name):
-	var slot = $gun_container/modules.find_child(part_name)
+	var slot = $modules.find_child(part_name)
 	if slot.get_child_count() == 1:
 		slot.get_child(0).queue_free()
 	if slot is Marker2D:
@@ -222,7 +222,7 @@ func fire():
 
 func eject_brass():
 	var brass_inst = brass_obj.instantiate()
-	brass_inst.global_position = $gun_container/ejector.global_position
+	brass_inst.global_position = $ejector.global_position
 	brass_inst.global_rotation = global_rotation + rng.randf_range(-PI/8, PI/8)
 	brass_inst.get_child(0).texture = brass_texture
 	added_velocity = get_parent().get_parent().get_parent().velocity/2
@@ -231,6 +231,7 @@ func eject_brass():
 func muzzle_flash():
 	var muzzle_inst = preload("res://components/muzzle_flash.tscn").instantiate()
 	muzzle_inst.global_position = get_pof()
+	muzzle_inst.global_rotation = global_rotation
 	get_tree().current_scene.call_deferred("add_child",muzzle_inst)
 
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:

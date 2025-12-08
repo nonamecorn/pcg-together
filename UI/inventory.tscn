@@ -64,6 +64,7 @@ script = ExtResource("4_k0eh3")
 item_address = "gun"
 
 [node name="HBoxContainer" type="HBoxContainer" parent="WeaponSlot"]
+visible = false
 layout_mode = 2
 
 [node name="InventoryCell" parent="WeaponSlot/HBoxContainer" groups=["Container"] instance=ExtResource("1_23vm5")]

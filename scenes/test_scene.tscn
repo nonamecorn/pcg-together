@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://cj42rivp6owbq" path="res://obj/entities/bodies/player/player.tscn" id="1_g7g4h"]
 [ext_resource type="PackedScene" uid="uid://vxlnckbeqm4y" path="res://components/mother_body.tscn" id="2_j8ivh"]
-[ext_resource type="PackedScene" uid="uid://b1d6mlonb7nwc" path="res://obj/entities/bodies/enemies/basic_enemy.tscn" id="3_nd71p"]
+[ext_resource type="PackedScene" uid="uid://b1d6mlonb7nwc" path="res://obj/entities/bodies/basic_enemy/basic_enemy.tscn" id="3_nd71p"]
 [ext_resource type="Texture2D" uid="uid://dxucpqisavw5y" path="res://icon.svg" id="4_7ddre"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_nd71p"]

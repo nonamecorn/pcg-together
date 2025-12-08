@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=4 uid="uid://bd184ubagxtn5"]
 
 [ext_resource type="PackedScene" uid="uid://clyk3n4oqn0af" path="res://lvls/rooms/room_template.tscn" id="1_8sxrm"]
-[ext_resource type="PackedScene" uid="uid://b1d6mlonb7nwc" path="res://obj/entities/bodies/enemies/basic_enemy.tscn" id="2_prx1h"]
+[ext_resource type="PackedScene" uid="uid://b1d6mlonb7nwc" path="res://obj/entities/bodies/basic_enemy/basic_enemy.tscn" id="2_prx1h"]
 
 [node name="room1" instance=ExtResource("1_8sxrm")]
 

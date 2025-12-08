@@ -12,3 +12,7 @@ func update(_delta : float) -> void:
 	pass
 func physics_update(_delta : float) -> void:
 	pass
+func unhandled_input(_event: InputEvent) -> void:
+	pass
+func input(_event: InputEvent) -> void:
+	pass

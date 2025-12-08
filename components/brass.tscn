@@ -23,7 +23,7 @@ rotation = 1.5708
 shape = SubResource("CapsuleShape2D_x8cn8")
 
 [node name="Timer" type="Timer" parent="."]
-wait_time = 30.0
+wait_time = 10.0
 one_shot = true
 autostart = true
 

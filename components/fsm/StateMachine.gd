@@ -24,6 +24,14 @@ func _physics_process(delta: float) -> void:
 	if current_state:
 		current_state.physics_update(delta)
 
+func _unhandled_input(event: InputEvent) -> void:
+	if current_state:
+		current_state.unhandled_input(event)
+
+func _input(event: InputEvent) -> void:
+	if current_state:
+		current_state.input(event)
+
 func force_transition(new_state_name):
 	on_child_transition(current_state, new_state_name)
 

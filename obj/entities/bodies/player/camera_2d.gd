@@ -18,7 +18,7 @@ func _physics_process(delta):
 	#global_position = (get_parent().global_position + cursor.global_position) / 2
 	var radius_vec = cursor.global_position - cursor.get_parent().global_position
 	if radius_vec.length() > r2:
-		position = radius_vec.normalized() * scope
+		position = (radius_vec.normalized() * scope)
 	else: global_position = get_parent().global_position
 
 

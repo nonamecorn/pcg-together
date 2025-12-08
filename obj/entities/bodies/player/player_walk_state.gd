@@ -1,6 +1,7 @@
 extends State
 
 @export var player : Entity
+@export var sprite : AnimatedSprite2D
 
 func get_input_dir():
 	return Vector2(
@@ -8,15 +9,21 @@ func get_input_dir():
 		Input.get_action_strength("ui_down") - Input.get_action_strength("ui_up")
 	).normalized()
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func physics_update(delta):
-	if Input.is_action_just_pressed("ui_cancel"):
+func unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):
 		transitioned.emit(self,"inventory")
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func update(delta):
+	#if Input.is_action_just_pressed("ui_cancel"):
+		#transitioned.emit(self,"inventory")
 	var input_vector = get_input_dir()
 	if input_vector != Vector2.ZERO:
+		sprite.play("walk")
 		player.velocity = player.velocity.move_toward(
 			input_vector * player.MAX_SPEED,delta * player.ACCELERATION
 			)
 	else:
+		sprite.play("idle")
 		player.velocity = player.velocity.move_toward(Vector2.ZERO, delta * player.ACCELERATION)
 	player.move_and_slide()
