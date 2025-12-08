@@ -1,0 +1,107 @@
+[gd_scene load_steps=7 format=3 uid="uid://b41x20p6t7gqw"]
+
+[ext_resource type="PackedScene" uid="uid://i4hybqdscpxl" path="res://components/mother_gun.tscn" id="1_gwdd5"]
+[ext_resource type="PackedScene" uid="uid://bjb1xhth25217" path="res://obj/entities/proj/basic_bullet.tscn" id="2_q7qg0"]
+[ext_resource type="Texture2D" uid="uid://cry5lovl6ihi3" path="res://img/misc/Medium_casing.png" id="3_adwia"]
+
+[sub_resource type="Animation" id="Animation_q7qg0"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("gun_container/gun_sprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("gun_container:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(6, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_gwdd5"]
+resource_name = "fire"
+length = 0.1
+step = 0.01
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("gun_container/gun_sprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.01, 0.03, 0.05, 0.07, 0.08),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 0]
+}
+tracks/1/type = "method"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.04),
+"transitions": PackedFloat32Array(1, 1),
+"values": [{
+"args": [],
+"method": &"fire"
+}, {
+"args": [],
+"method": &"eject_brass"
+}]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("gun_container:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.0398899, 0.0700675),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(6, 0), Vector2(3, 0), Vector2(6, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_adwia"]
+_data = {
+&"RESET": SubResource("Animation_q7qg0"),
+&"fire": SubResource("Animation_gwdd5")
+}
+
+[node name="AKM" instance=ExtResource("1_gwdd5")]
+max_spread = 5.0
+min_spread = 2.0
+max_ammo = 30
+num_of_pellets = 1
+bullet_obj = ExtResource("2_q7qg0")
+brass_texture = ExtResource("3_adwia")
+hor_recoil = 10.0
+
+[node name="firerate" parent="." index="0"]
+wait_time = 0.5
+
+[node name="single_shot" parent="." index="2"]
+wait_time = 0.5
+
+[node name="AnimationPlayer" parent="." index="3"]
+libraries = {
+&"": SubResource("AnimationLibrary_adwia")
+}
+
+[node name="POF" parent="gun_container" index="1"]
+position = Vector2(22, -1)

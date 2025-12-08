@@ -1,0 +1,96 @@
+[gd_scene load_steps=6 format=3 uid="uid://dhhg35brss5lu"]
+
+[ext_resource type="Script" uid="uid://qv0g175jimpd" path="res://UI/inventory.gd" id="1_0knst"]
+[ext_resource type="PackedScene" uid="uid://l4qjeohj8axm" path="res://UI/inventory_cell.tscn" id="1_23vm5"]
+[ext_resource type="Script" uid="uid://dnxe7yo3n3ybx" path="res://UI/backpack.gd" id="1_fxcd2"]
+[ext_resource type="Texture2D" uid="uid://cquqwldpb6mf7" path="res://img/UI/GunPort.png" id="2_7g8kd"]
+[ext_resource type="Script" uid="uid://20cdiqlyvrdv" path="res://UI/weapon_slot.gd" id="4_k0eh3"]
+
+[node name="Inventory" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_0knst")
+
+[node name="Backpack" type="GridContainer" parent="." groups=["Container"]]
+layout_mode = 0
+offset_left = 457.0
+offset_top = 497.0
+offset_right = 713.0
+offset_bottom = 625.0
+theme_override_constants/h_separation = 0
+theme_override_constants/v_separation = 0
+columns = 4
+script = ExtResource("1_fxcd2")
+
+[node name="InventoryCell" parent="Backpack" instance=ExtResource("1_23vm5")]
+layout_mode = 2
+
+[node name="InventoryCell2" parent="Backpack" instance=ExtResource("1_23vm5")]
+layout_mode = 2
+
+[node name="InventoryCell3" parent="Backpack" instance=ExtResource("1_23vm5")]
+layout_mode = 2
+
+[node name="InventoryCell4" parent="Backpack" instance=ExtResource("1_23vm5")]
+layout_mode = 2
+
+[node name="InventoryCell5" parent="Backpack" instance=ExtResource("1_23vm5")]
+layout_mode = 2
+
+[node name="InventoryCell6" parent="Backpack" instance=ExtResource("1_23vm5")]
+layout_mode = 2
+
+[node name="InventoryCell7" parent="Backpack" instance=ExtResource("1_23vm5")]
+layout_mode = 2
+
+[node name="InventoryCell8" parent="Backpack" instance=ExtResource("1_23vm5")]
+layout_mode = 2
+
+[node name="WeaponSlot" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 27.0
+offset_top = 21.0
+offset_right = 295.0
+offset_bottom = 217.0
+
+[node name="BaseSlot" type="TextureRect" parent="WeaponSlot" groups=["Container"]]
+layout_mode = 2
+texture = ExtResource("2_7g8kd")
+script = ExtResource("4_k0eh3")
+item_address = "gun"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="WeaponSlot"]
+layout_mode = 2
+
+[node name="InventoryCell" parent="WeaponSlot/HBoxContainer" groups=["Container"] instance=ExtResource("1_23vm5")]
+layout_mode = 2
+script = ExtResource("4_k0eh3")
+slot = "mod"
+
+[node name="InventoryCell2" parent="WeaponSlot/HBoxContainer" groups=["Container"] instance=ExtResource("1_23vm5")]
+layout_mode = 2
+script = ExtResource("4_k0eh3")
+slot = "mod"
+
+[node name="InventoryCell3" parent="WeaponSlot/HBoxContainer" groups=["Container"] instance=ExtResource("1_23vm5")]
+layout_mode = 2
+script = ExtResource("4_k0eh3")
+slot = "mod"
+
+[node name="InventoryCell4" parent="WeaponSlot/HBoxContainer" groups=["Container"] instance=ExtResource("1_23vm5")]
+layout_mode = 2
+script = ExtResource("4_k0eh3")
+slot = "mod"
+
+[node name="Items" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
