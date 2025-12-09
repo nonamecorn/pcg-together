@@ -133,6 +133,7 @@ animations = [{
 
 [node name="MuzzleFlash" type="AnimatedSprite2D"]
 modulate = Color(1.8247963, 1.8247963, 1.8247963, 1)
+z_index = 1
 sprite_frames = SubResource("SpriteFrames_s784k")
 autoplay = "default"
 frame = 4

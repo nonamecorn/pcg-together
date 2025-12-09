@@ -6,6 +6,7 @@ class_name Projectile
 @export var speed : float = 500.0
 @export var lifetime : float = 1.0
 @export var velocity_to_scale : Curve
+@export var spark : PackedScene
 var move_vec : Vector2
 var mod_vec : Vector2 = Vector2.ZERO
 # Called when the node enters the scene tree for the first time.
@@ -39,6 +40,9 @@ func on_collision(coll):
 		move_vec = move_vec.bounce(coll.get_normal())
 		return
 	$Line2D.add_point(global_position)
+	var spark_inst = spark.instantiate()
+	spark_inst.global_position = global_position
+	get_tree().current_scene.add_child(spark_inst)
 	queue_free()
 
 func _on_timer_timeout() -> void:

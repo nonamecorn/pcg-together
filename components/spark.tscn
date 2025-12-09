@@ -1,0 +1,51 @@
+[gd_scene load_steps=8 format=3 uid="uid://devakjkkj82x1"]
+
+[ext_resource type="Texture2D" uid="uid://cbjtuifnf16o4" path="res://img/misc/spark.png" id="1_ogo01"]
+[ext_resource type="Script" uid="uid://b15k055wyk8dt" path="res://components/spark.gd" id="2_7v7sj"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1ij0a"]
+atlas = ExtResource("1_ogo01")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v4nsy"]
+atlas = ExtResource("1_ogo01")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1t4ry"]
+atlas = ExtResource("1_ogo01")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ce555"]
+atlas = ExtResource("1_ogo01")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_snv5p"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1ij0a")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v4nsy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1t4ry")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ce555")
+}],
+"loop": false,
+"name": &"default",
+"speed": 20.0
+}]
+
+[node name="Spark" type="AnimatedSprite2D"]
+modulate = Color(1.8247963, 1.8247963, 1.8247963, 1)
+z_index = 1
+sprite_frames = SubResource("SpriteFrames_snv5p")
+autoplay = "default"
+frame = 3
+frame_progress = 1.0
+script = ExtResource("2_7v7sj")
+
+[connection signal="animation_finished" from="." to="." method="_on_animation_finished"]
