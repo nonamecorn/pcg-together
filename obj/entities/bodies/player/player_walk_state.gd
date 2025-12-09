@@ -1,7 +1,7 @@
 extends State
 
 @export var player : Entity
-@export var sprite : AnimatedSprite2D
+@export var animation : AnimationPlayer
 
 func get_input_dir():
 	return Vector2(
@@ -19,11 +19,11 @@ func update(delta):
 		#transitioned.emit(self,"inventory")
 	var input_vector = get_input_dir()
 	if input_vector != Vector2.ZERO:
-		sprite.play("walk")
+		animation.play("walk")
 		player.velocity = player.velocity.move_toward(
 			input_vector * player.MAX_SPEED,delta * player.ACCELERATION
 			)
 	else:
-		sprite.play("idle")
+		animation.play("idle")
 		player.velocity = player.velocity.move_toward(Vector2.ZERO, delta * player.ACCELERATION)
 	player.move_and_slide()

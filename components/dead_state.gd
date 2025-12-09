@@ -3,7 +3,7 @@ extends State
 class_name DeathState
 
 @export var entity : Entity
-@export var sprite : AnimatedSprite2D
+@export var sprite : Sprite2D
 @export var hitbox_coll : CollisionShape2D
 @export var wall_coll : CollisionShape2D
 @export var hand : Node2D

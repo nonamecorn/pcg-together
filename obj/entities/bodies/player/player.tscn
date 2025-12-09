@@ -1,9 +1,10 @@
-[gd_scene load_steps=22 format=3 uid="uid://cj42rivp6owbq"]
+[gd_scene load_steps=17 format=3 uid="uid://cj42rivp6owbq"]
 
 [ext_resource type="PackedScene" uid="uid://vxlnckbeqm4y" path="res://components/mother_body.tscn" id="1_e42ip"]
 [ext_resource type="Script" uid="uid://bm3wjni3c3813" path="res://obj/entities/bodies/player/player.gd" id="2_kpwks"]
 [ext_resource type="Script" uid="uid://xh3m1kb2p3tb" path="res://obj/entities/bodies/player/player_walk_state.gd" id="3_mmb6a"]
 [ext_resource type="Texture2D" uid="uid://pfwngoqau3pu" path="res://img/bodies/player/Player_animsheet.png" id="3_r4var"]
+[ext_resource type="Texture2D" uid="uid://cl2t0plbw7owg" path="res://img/bodies/player/Player_animsheet_n.png" id="4_8mvx4"]
 [ext_resource type="Script" uid="uid://cvf00qxxsh3gc" path="res://obj/entities/bodies/player/inventory_state.gd" id="4_w8mye"]
 [ext_resource type="Script" uid="uid://cyvxfk0l26uc5" path="res://obj/entities/bodies/player/player_hand.gd" id="5_kjt16"]
 [ext_resource type="Script" uid="uid://6qchh0308yjc" path="res://obj/entities/bodies/player/camera_2d.gd" id="5_w8mye"]
@@ -11,121 +12,97 @@
 [ext_resource type="PackedScene" uid="uid://dhhg35brss5lu" path="res://UI/inventory.tscn" id="7_bmp72"]
 [ext_resource type="Texture2D" uid="uid://bd8c6yrx713ol" path="res://img/misc/256x256 textures (101).png" id="10_jevgb"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_714fl"]
-atlas = ExtResource("3_r4var")
-region = Rect2(32, 0, 32, 32)
+[sub_resource type="CanvasTexture" id="CanvasTexture_cnqlk"]
+diffuse_texture = ExtResource("3_r4var")
+normal_texture = ExtResource("4_8mvx4")
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_01ppx"]
-atlas = ExtResource("3_r4var")
-region = Rect2(0, 0, 32, 32)
+[sub_resource type="Animation" id="Animation_8mvx4"]
+resource_name = "idle"
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("BodySprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [0, 1]
+}
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_jevgb"]
-atlas = ExtResource("3_r4var")
-region = Rect2(64, 0, 32, 32)
+[sub_resource type="Animation" id="Animation_cnqlk"]
+resource_name = "walk"
+length = 0.4
+loop_mode = 1
+step = 0.01
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("BodySprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [2, 3, 4, 5, 6, 7, 8, 9]
+}
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_8mvx4"]
-atlas = ExtResource("3_r4var")
-region = Rect2(96, 0, 32, 32)
+[sub_resource type="Animation" id="Animation_kvt5g"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("BodySprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_cnqlk"]
-atlas = ExtResource("3_r4var")
-region = Rect2(128, 0, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_kvt5g"]
-atlas = ExtResource("3_r4var")
-region = Rect2(160, 0, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_ohwt3"]
-atlas = ExtResource("3_r4var")
-region = Rect2(192, 0, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_0l4gk"]
-atlas = ExtResource("3_r4var")
-region = Rect2(224, 0, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_yodfm"]
-atlas = ExtResource("3_r4var")
-region = Rect2(256, 0, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_fintv"]
-atlas = ExtResource("3_r4var")
-region = Rect2(288, 0, 32, 32)
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_0erc4"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_714fl")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_01ppx")
-}],
-"loop": true,
-"name": &"idle",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_jevgb")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_8mvx4")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_cnqlk")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_kvt5g")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_ohwt3")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_0l4gk")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_yodfm")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_fintv")
-}],
-"loop": true,
-"name": &"walk",
-"speed": 16.0
-}]
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_ohwt3"]
+_data = {
+&"RESET": SubResource("Animation_kvt5g"),
+&"idle": SubResource("Animation_8mvx4"),
+&"walk": SubResource("Animation_cnqlk")
+}
 
 [node name="Player" instance=ExtResource("1_e42ip")]
 process_physics_priority = 1
 script = ExtResource("2_kpwks")
 
 [node name="BodySprite" parent="." index="1"]
-sprite_frames = SubResource("SpriteFrames_0erc4")
-animation = &"walk"
-autoplay = "idle"
-frame_progress = 0.9339247
+texture = SubResource("CanvasTexture_cnqlk")
+hframes = 10
 
-[node name="FSM" parent="." index="2" node_paths=PackedStringArray("initial_state")]
+[node name="AnimationPlayer" parent="." index="2"]
+libraries = {
+&"": SubResource("AnimationLibrary_ohwt3")
+}
+
+[node name="FSM" parent="." index="3" node_paths=PackedStringArray("initial_state")]
 initial_state = NodePath("Walk")
 
-[node name="Walk" type="Node" parent="FSM" index="1" node_paths=PackedStringArray("player", "sprite")]
+[node name="Dead" parent="FSM" index="0" node_paths=PackedStringArray("sprite")]
+sprite = NodePath("../../BodySprite")
+
+[node name="Walk" type="Node" parent="FSM" index="1" node_paths=PackedStringArray("player", "animation")]
 script = ExtResource("3_mmb6a")
 player = NodePath("../..")
-sprite = NodePath("../../BodySprite")
+animation = NodePath("../../AnimationPlayer")
 
 [node name="Inventory" type="Node" parent="FSM" index="2" node_paths=PackedStringArray("inventory")]
 script = ExtResource("4_w8mye")
 inventory = NodePath("../../CanvasLayer/Inventory")
 
-[node name="cursor" parent="." index="4"]
+[node name="cursor" parent="." index="5"]
 visible = true
 HANDLING_SPEED = 10.0
-player_handled = true
-
-[node name="Hand" parent="." index="5"]
-position = Vector2(-2, -16)
-script = ExtResource("5_kjt16")
-
-[node name="mother_melee" parent="Hand/Handmarker" index="0" instance=ExtResource("6_ie8h0")]
 player_handled = true
 
 [node name="Camera2D" type="Camera2D" parent="." index="6" node_paths=PackedStringArray("cursor")]
@@ -139,6 +116,13 @@ scope = 50.0
 
 [node name="Inventory" parent="CanvasLayer" index="0" instance=ExtResource("7_bmp72")]
 visible = false
+
+[node name="Hand" parent="." index="8"]
+position = Vector2(-2, -16)
+script = ExtResource("5_kjt16")
+
+[node name="mother_melee" parent="Hand/Handmarker" index="0" instance=ExtResource("6_ie8h0")]
+player_handled = true
 
 [node name="PointLight2D" type="PointLight2D" parent="." index="9"]
 shadow_enabled = true

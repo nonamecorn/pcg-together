@@ -1,40 +1,65 @@
-[gd_scene load_steps=15 format=3 uid="uid://b1d6mlonb7nwc"]
+[gd_scene load_steps=20 format=3 uid="uid://cic7vf68w7t3j"]
 
-[ext_resource type="PackedScene" uid="uid://vxlnckbeqm4y" path="res://components/mother_body.tscn" id="1_e4kk1"]
-[ext_resource type="Script" uid="uid://kmjfkbt1bg77" path="res://obj/entities/bodies/basic_enemy/basic_enemy.gd" id="2_e0cwr"]
-[ext_resource type="Script" uid="uid://dbteipskyllwk" path="res://obj/entities/bodies/basic_enemy/patrol_state.gd" id="2_ppyn0"]
-[ext_resource type="Script" uid="uid://bpj2cni183yq0" path="res://obj/entities/bodies/basic_enemy/turret_state.gd" id="3_e0cwr"]
-[ext_resource type="Script" uid="uid://m4xjmgw4e48a" path="res://obj/entities/bodies/basic_enemy/enemy_fsm.gd" id="3_javgc"]
-[ext_resource type="Script" uid="uid://ifbnr5f5kyqu" path="res://obj/entities/bodies/basic_enemy/enemydead_state.gd" id="4_uwxms"]
-[ext_resource type="Script" uid="uid://cy7uuvev4cuda" path="res://obj/entities/bodies/basic_enemy/perceptor.gd" id="5_cgfm0"]
-[ext_resource type="Script" uid="uid://xmyx6gj5p53v" path="res://obj/entities/bodies/basic_enemy/investigate.gd" id="5_ix6af"]
-[ext_resource type="Script" uid="uid://bsxhiboftuo1f" path="res://obj/entities/bodies/basic_enemy/panic_state.gd" id="6_pwmcd"]
-[ext_resource type="Script" uid="uid://d2eil3heten32" path="res://obj/entities/bodies/basic_enemy/surround_state.gd" id="7_u1xw8"]
-[ext_resource type="Script" uid="uid://xxrswto60gno" path="res://obj/entities/bodies/basic_enemy/retreat_state.gd" id="8_04aog"]
-[ext_resource type="PackedScene" uid="uid://4nnhn6wjky8e" path="res://obj/guns/br_180.tscn" id="11_k1m5i"]
+[ext_resource type="PackedScene" uid="uid://vxlnckbeqm4y" path="res://components/mother_body.tscn" id="1_mp6s7"]
+[ext_resource type="Script" uid="uid://kmjfkbt1bg77" path="res://obj/entities/bodies/basic_enemy/basic_enemy.gd" id="2_lp3ku"]
+[ext_resource type="Script" uid="uid://m4xjmgw4e48a" path="res://obj/entities/bodies/basic_enemy/enemy_fsm.gd" id="3_7ocqv"]
+[ext_resource type="Texture2D" uid="uid://cs7jriaymvxyg" path="res://img/bodies/enemy/Bug_animsheet.png" id="3_lp3ku"]
+[ext_resource type="Script" uid="uid://ifbnr5f5kyqu" path="res://obj/entities/bodies/basic_enemy/enemydead_state.gd" id="4_sa105"]
+[ext_resource type="Script" uid="uid://dbteipskyllwk" path="res://obj/entities/bodies/basic_enemy/patrol_state.gd" id="5_l3ylu"]
+[ext_resource type="Script" uid="uid://bpj2cni183yq0" path="res://obj/entities/bodies/basic_enemy/turret_state.gd" id="6_8dws6"]
+[ext_resource type="Script" uid="uid://xmyx6gj5p53v" path="res://obj/entities/bodies/basic_enemy/investigate.gd" id="7_4b7t6"]
+[ext_resource type="Script" uid="uid://bsxhiboftuo1f" path="res://obj/entities/bodies/basic_enemy/panic_state.gd" id="8_c7rws"]
+[ext_resource type="Script" uid="uid://7cchilo0t331" path="res://obj/entities/bodies/basic_enemy/melee_surround_state.gd" id="9_mp6s7"]
+[ext_resource type="Script" uid="uid://xxrswto60gno" path="res://obj/entities/bodies/basic_enemy/retreat_state.gd" id="10_b71yr"]
+[ext_resource type="Script" uid="uid://8jy18re185em" path="res://obj/entities/bodies/basic_enemy/hurtbox.gd" id="12_mp6s7"]
+[ext_resource type="Script" uid="uid://cy7uuvev4cuda" path="res://obj/entities/bodies/basic_enemy/perceptor.gd" id="12_p7u13"]
+
+[sub_resource type="Animation" id="Animation_lp3ku"]
+resource_name = "idle"
+
+[sub_resource type="Animation" id="Animation_7ocqv"]
+resource_name = "walk"
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_sa105"]
+_data = {
+&"idle": SubResource("Animation_lp3ku"),
+&"walk": SubResource("Animation_7ocqv")
+}
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_cgfm0"]
 radius = 104.0769
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_ix6af"]
 
-[node name="Enemy" node_paths=PackedStringArray("nav_agent") groups=["Raiders"] instance=ExtResource("1_e4kk1")]
-script = ExtResource("2_e0cwr")
+[sub_resource type="CircleShape2D" id="CircleShape2D_lp52g"]
+radius = 47.26521
+
+[node name="Enemy" node_paths=PackedStringArray("nav_agent") groups=["Raiders"] instance=ExtResource("1_mp6s7")]
+script = ExtResource("2_lp3ku")
 nav_agent = NodePath("NavigationAgent2D")
 group = "Raiders"
 
-[node name="FSM" parent="." index="2" node_paths=PackedStringArray("label", "initial_state")]
-script = ExtResource("3_javgc")
+[node name="BodySprite" parent="." index="1"]
+texture = ExtResource("3_lp3ku")
+hframes = 14
+
+[node name="AnimationPlayer" parent="." index="2"]
+libraries = {
+&"": SubResource("AnimationLibrary_sa105")
+}
+
+[node name="FSM" parent="." index="3" node_paths=PackedStringArray("label", "initial_state")]
+script = ExtResource("3_7ocqv")
 label = NodePath("../Label")
 initial_state = NodePath("Turret")
 
 [node name="Dead" parent="FSM" index="0" node_paths=PackedStringArray("perceptor", "ray")]
-script = ExtResource("4_uwxms")
+script = ExtResource("4_sa105")
 perceptor = NodePath("../../Perceptor")
 ray = NodePath("../../LOS_ray")
 
 [node name="Patrol" type="Node" parent="FSM" index="1" node_paths=PackedStringArray("enemy", "cursor", "hand", "hitbox", "perceptor")]
-script = ExtResource("2_ppyn0")
+script = ExtResource("5_l3ylu")
 enemy = NodePath("../..")
 cursor = NodePath("../../cursor")
 hand = NodePath("../../Hand")
@@ -42,7 +67,7 @@ hitbox = NodePath("../../Hitbox")
 perceptor = NodePath("../../Perceptor")
 
 [node name="Turret" type="Node" parent="FSM" index="2" node_paths=PackedStringArray("enemy", "cursor", "hand", "hitbox", "perceptor")]
-script = ExtResource("3_e0cwr")
+script = ExtResource("6_8dws6")
 enemy = NodePath("../..")
 cursor = NodePath("../../cursor")
 hand = NodePath("../../Hand")
@@ -50,7 +75,7 @@ hitbox = NodePath("../../Hitbox")
 perceptor = NodePath("../../Perceptor")
 
 [node name="Investigate" type="Node" parent="FSM" index="3" node_paths=PackedStringArray("enemy", "nav_agent", "cursor", "hand", "hitbox", "perceptor")]
-script = ExtResource("5_ix6af")
+script = ExtResource("7_4b7t6")
 enemy = NodePath("../..")
 nav_agent = NodePath("../../NavigationAgent2D")
 cursor = NodePath("../../cursor")
@@ -59,7 +84,7 @@ hitbox = NodePath("../../Hitbox")
 perceptor = NodePath("../../Perceptor")
 
 [node name="Panic" type="Node" parent="FSM" index="4" node_paths=PackedStringArray("enemy", "cursor", "hand", "perceptor")]
-script = ExtResource("6_pwmcd")
+script = ExtResource("8_c7rws")
 enemy = NodePath("../..")
 cursor = NodePath("../../cursor")
 hand = NodePath("../../Hand")
@@ -68,7 +93,7 @@ perceptor = NodePath("../../Perceptor")
 [node name="Timer" type="Timer" parent="FSM/Panic" index="0"]
 
 [node name="Surround" type="Node" parent="FSM" index="5" node_paths=PackedStringArray("enemy", "nav_agent", "hand", "cursor", "handmarker", "perceptor")]
-script = ExtResource("7_u1xw8")
+script = ExtResource("9_mp6s7")
 enemy = NodePath("../..")
 nav_agent = NodePath("../../NavigationAgent2D")
 hand = NodePath("../../Hand")
@@ -78,13 +103,8 @@ perceptor = NodePath("../../Perceptor")
 
 [node name="changepath" type="Timer" parent="FSM/Surround" index="0"]
 
-[node name="attack" type="Timer" parent="FSM/Surround" index="1"]
-
-[node name="burst" type="Timer" parent="FSM/Surround" index="2"]
-one_shot = true
-
 [node name="Retreat" type="Node" parent="FSM" index="6" node_paths=PackedStringArray("enemy", "cover_searcher", "nav_agent", "hand", "cursor", "perceptor")]
-script = ExtResource("8_04aog")
+script = ExtResource("10_b71yr")
 enemy = NodePath("../..")
 cover_searcher = NodePath("../../Perceptor/CQB_awareness")
 nav_agent = NodePath("../../NavigationAgent2D")
@@ -92,13 +112,11 @@ hand = NodePath("../../Hand")
 cursor = NodePath("../../cursor")
 perceptor = NodePath("../../Perceptor")
 
-[node name="BR180" parent="Hand/Handmarker" index="0" instance=ExtResource("11_k1m5i")]
-
 [node name="Perceptor" type="StaticBody2D" parent="." index="6" node_paths=PackedStringArray("entity", "gun_marker", "hand", "ray")]
 position = Vector2(0, -22)
 collision_layer = 4
 collision_mask = 0
-script = ExtResource("5_cgfm0")
+script = ExtResource("12_p7u13")
 entity = NodePath("..")
 gun_marker = NodePath("../Hand/Handmarker")
 hand = NodePath("../Hand")
@@ -133,6 +151,19 @@ offset_bottom = -33.0
 position = Vector2(0, -22)
 collision_mask = 10
 
+[node name="hurtbox" type="Area2D" parent="Hand/Handmarker" index="0"]
+position = Vector2(-7, 15)
+collision_layer = 0
+collision_mask = 16
+script = ExtResource("12_mp6s7")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hand/Handmarker/hurtbox" index="0"]
+shape = SubResource("CircleShape2D_lp52g")
+debug_color = Color(0.99215686, 0, 0.23529412, 0.06666667)
+
+[node name="Timer" type="Timer" parent="Hand/Handmarker/hurtbox" index="1"]
+
 [connection signal="timeout" from="FSM/Surround/changepath" to="FSM/Surround" method="_on_changepath_timeout"]
-[connection signal="timeout" from="FSM/Surround/attack" to="FSM/Surround" method="_on_attack_timeout"]
-[connection signal="timeout" from="FSM/Surround/burst" to="FSM/Surround" method="_on_burst_duration_timeout"]
+[connection signal="body_entered" from="Hand/Handmarker/hurtbox" to="Hand/Handmarker/hurtbox" method="_on_body_entered"]
+[connection signal="body_exited" from="Hand/Handmarker/hurtbox" to="Hand/Handmarker/hurtbox" method="_on_body_exited"]
+[connection signal="timeout" from="Hand/Handmarker/hurtbox/Timer" to="Hand/Handmarker/hurtbox" method="_on_timer_timeout"]

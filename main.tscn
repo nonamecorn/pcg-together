@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=4 uid="uid://btyq8q6ypm13m"]
+[gd_scene load_steps=7 format=4 uid="uid://btyq8q6ypm13m"]
 
 [ext_resource type="PackedScene" uid="uid://b57eiw8isn0kd" path="res://lvls/layers.tscn" id="1_ig7tw"]
 [ext_resource type="PackedScene" uid="uid://cj42rivp6owbq" path="res://obj/entities/bodies/player/player.tscn" id="2_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://b1d6mlonb7nwc" path="res://obj/entities/bodies/basic_enemy/basic_enemy.tscn" id="2_h2yge"]
 [ext_resource type="PackedScene" uid="uid://4nnhn6wjky8e" path="res://obj/guns/br_180.tscn" id="4_1bvp3"]
+[ext_resource type="PackedScene" uid="uid://cic7vf68w7t3j" path="res://obj/entities/bodies/basic_enemy/melee_enemy.tscn" id="5_lquwl"]
 
 [sub_resource type="Environment" id="Environment_h2yge"]
 background_mode = 3
@@ -43,5 +44,8 @@ color = Color(0.42358288, 0.42358288, 0.42358288, 1)
 environment = SubResource("Environment_h2yge")
 
 [node name="BR180" parent="." instance=ExtResource("4_1bvp3")]
+
+[node name="Enemy" parent="." instance=ExtResource("5_lquwl")]
+position = Vector2(184, 284)
 
 [editable path="layers"]
