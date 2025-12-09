@@ -22,14 +22,14 @@ var spread = 0
 var added_velocity : Vector2
 var offhand : bool = false
 var state = FIRE
-#var gpuparticles
-var assambled = false
-#@export var pitch_shifing : Curve
-var firing = false
 enum {
 	FIRE,
 	STOP,
 }
+#var gpuparticles
+var assambled = false
+#@export var pitch_shifing : Curve
+var firing = false
 signal empty
 signal loaded
 signal ammo_changed(current,max,ind)

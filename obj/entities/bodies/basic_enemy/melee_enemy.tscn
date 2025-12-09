@@ -53,10 +53,11 @@ script = ExtResource("3_7ocqv")
 label = NodePath("../Label")
 initial_state = NodePath("Turret")
 
-[node name="Dead" parent="FSM" index="0" node_paths=PackedStringArray("perceptor", "ray")]
+[node name="Dead" parent="FSM" index="0" node_paths=PackedStringArray("perceptor", "ray", "gun")]
 script = ExtResource("4_sa105")
 perceptor = NodePath("../../Perceptor")
 ray = NodePath("../../LOS_ray")
+gun = NodePath("../../Hand/Handmarker/hurtbox")
 
 [node name="Patrol" type="Node" parent="FSM" index="1" node_paths=PackedStringArray("enemy", "cursor", "hand", "hitbox", "perceptor")]
 script = ExtResource("5_l3ylu")

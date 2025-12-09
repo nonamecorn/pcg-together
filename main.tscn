@@ -46,6 +46,6 @@ environment = SubResource("Environment_h2yge")
 [node name="BR180" parent="." instance=ExtResource("4_1bvp3")]
 
 [node name="Enemy" parent="." instance=ExtResource("5_lquwl")]
-position = Vector2(184, 284)
+position = Vector2(854, 87)
 
 [editable path="layers"]
