@@ -32,7 +32,7 @@ radius = 104.0769
 [sub_resource type="CircleShape2D" id="CircleShape2D_ix6af"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_lp52g"]
-radius = 47.26521
+radius = 30.066593
 
 [node name="Enemy" node_paths=PackedStringArray("nav_agent") groups=["Raiders"] instance=ExtResource("1_mp6s7")]
 script = ExtResource("2_lp3ku")
@@ -152,11 +152,17 @@ offset_bottom = -33.0
 position = Vector2(0, -22)
 collision_mask = 10
 
-[node name="hurtbox" type="Area2D" parent="Hand/Handmarker" index="0"]
-position = Vector2(-7, 15)
+[node name="Hand" parent="." index="10"]
+position = Vector2(1, -8)
+
+[node name="Handmarker" parent="Hand" index="0"]
+position = Vector2(0, 0)
+
+[node name="hurtbox" type="Area2D" parent="Hand/Handmarker" index="0" node_paths=PackedStringArray("hitbox")]
 collision_layer = 0
 collision_mask = 16
 script = ExtResource("12_mp6s7")
+hitbox = NodePath("../../../Hitbox")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hand/Handmarker/hurtbox" index="0"]
 shape = SubResource("CircleShape2D_lp52g")

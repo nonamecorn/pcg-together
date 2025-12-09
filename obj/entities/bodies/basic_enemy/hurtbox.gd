@@ -7,13 +7,15 @@ enum {
 	FIRE,
 	STOP,
 }
+
 func get_pof():
 	return global_position
 
 var target : StaticBody2D
 @export var damage : float = 10.0
+@export var hitbox : StaticBody2D
 func _on_body_entered(body: Node2D) -> void:
-	if body.has_method("hurt"):
+	if body.has_method("hurt") and body != hitbox:
 		target = body
 		$Timer.start()
 
