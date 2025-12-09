@@ -36,6 +36,7 @@ animations = [{
 radius = 18.0
 
 [node name="MotherBody" type="CharacterBody2D" groups=["body"]]
+z_index = 1
 collision_layer = 10
 script = ExtResource("1_6sgng")
 

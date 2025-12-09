@@ -9,7 +9,7 @@
 [ext_resource type="Script" uid="uid://6qchh0308yjc" path="res://obj/entities/bodies/player/camera_2d.gd" id="5_w8mye"]
 [ext_resource type="PackedScene" uid="uid://wmbo868qv4i8" path="res://components/mother_melee.tscn" id="6_ie8h0"]
 [ext_resource type="PackedScene" uid="uid://dhhg35brss5lu" path="res://UI/inventory.tscn" id="7_bmp72"]
-[ext_resource type="Texture2D" uid="uid://bqgoox3w36a1k" path="res://img/misc/512x512_textures_23.png" id="10_jevgb"]
+[ext_resource type="Texture2D" uid="uid://bd8c6yrx713ol" path="res://img/misc/256x256 textures (101).png" id="10_jevgb"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_714fl"]
 atlas = ExtResource("3_r4var")
@@ -122,7 +122,7 @@ HANDLING_SPEED = 10.0
 player_handled = true
 
 [node name="Hand" parent="." index="5"]
-position = Vector2(-2, -13)
+position = Vector2(-2, -16)
 script = ExtResource("5_kjt16")
 
 [node name="mother_melee" parent="Hand/Handmarker" index="0" instance=ExtResource("6_ie8h0")]

@@ -26,6 +26,7 @@ var flipped = false
 func flip():
 	flipped = !flipped
 	$BodySprite.scale.x *= -1
+	$Hand.position.x *= -1
 
 func _on_hitbox_damaged(damage: float, damage_vec : Vector2) -> void:
 	hp -= damage
