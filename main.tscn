@@ -1,16 +1,19 @@
-[gd_scene load_steps=5 format=4 uid="uid://btyq8q6ypm13m"]
+[gd_scene load_steps=6 format=4 uid="uid://btyq8q6ypm13m"]
 
 [ext_resource type="PackedScene" uid="uid://b57eiw8isn0kd" path="res://lvls/layers.tscn" id="1_ig7tw"]
 [ext_resource type="PackedScene" uid="uid://cj42rivp6owbq" path="res://obj/entities/bodies/player/player.tscn" id="2_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://b1d6mlonb7nwc" path="res://obj/entities/bodies/basic_enemy/basic_enemy.tscn" id="2_h2yge"]
+[ext_resource type="PackedScene" uid="uid://4nnhn6wjky8e" path="res://obj/guns/br_180.tscn" id="4_1bvp3"]
 
 [sub_resource type="Environment" id="Environment_h2yge"]
+background_mode = 3
+tonemap_mode = 3
+tonemap_white = 0.75
 glow_enabled = true
 glow_normalized = true
-glow_intensity = 2.18
-glow_strength = 1.15
-glow_bloom = 0.11
-fog_enabled = true
+glow_intensity = 1.0
+glow_blend_mode = 0
+glow_hdr_threshold = 1.1
 fog_mode = 1
 fog_density = 1.0
 
@@ -34,9 +37,11 @@ position = Vector2(672, 33)
 position = Vector2(190, 220)
 
 [node name="CanvasModulate" type="CanvasModulate" parent="."]
-color = Color(0.37413925, 0.37413928, 0.37413922, 1)
+color = Color(0.42358288, 0.42358288, 0.42358288, 1)
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_h2yge")
+
+[node name="BR180" parent="." instance=ExtResource("4_1bvp3")]
 
 [editable path="layers"]

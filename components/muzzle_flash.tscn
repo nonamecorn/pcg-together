@@ -1,7 +1,8 @@
-[gd_scene load_steps=21 format=3 uid="uid://den217lp2soxx"]
+[gd_scene load_steps=22 format=3 uid="uid://den217lp2soxx"]
 
 [ext_resource type="Texture2D" uid="uid://cl8u3aevbr5ho" path="res://img/misc/MuzzleFlash.png" id="1_bx03t"]
 [ext_resource type="Script" uid="uid://dfjbgbbnb5k7p" path="res://components/muzzle_flash.gd" id="2_bx03t"]
+[ext_resource type="Texture2D" uid="uid://bqgoox3w36a1k" path="res://img/misc/512x512_textures_23.png" id="3_wn631"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_wn631"]
 atlas = ExtResource("1_bx03t")
@@ -131,10 +132,17 @@ animations = [{
 }]
 
 [node name="MuzzleFlash" type="AnimatedSprite2D"]
+modulate = Color(1.8247963, 1.8247963, 1.8247963, 1)
 sprite_frames = SubResource("SpriteFrames_s784k")
 autoplay = "default"
 frame = 4
 frame_progress = 0.38387972
 script = ExtResource("2_bx03t")
+
+[node name="PointLight2D" type="PointLight2D" parent="."]
+scale = Vector2(0.25, 0.25)
+color = Color(1, 1, 0.58383155, 1)
+texture = ExtResource("3_wn631")
+height = 30.0
 
 [connection signal="animation_finished" from="." to="." method="_on_animation_finished"]

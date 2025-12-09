@@ -1,9 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://4nnhn6wjky8e"]
+[gd_scene load_steps=10 format=3 uid="uid://4nnhn6wjky8e"]
 
 [ext_resource type="PackedScene" uid="uid://i4hybqdscpxl" path="res://components/mother_gun.tscn" id="1_3y8c7"]
 [ext_resource type="PackedScene" uid="uid://bjb1xhth25217" path="res://obj/entities/proj/basic_bullet.tscn" id="2_fkwtt"]
 [ext_resource type="Texture2D" uid="uid://by6vr5oww5dtf" path="res://img/weapons/BR180.png" id="2_w1a4p"]
 [ext_resource type="Texture2D" uid="uid://cry5lovl6ihi3" path="res://img/misc/Medium_casing.png" id="3_leug0"]
+[ext_resource type="Texture2D" uid="uid://dmslbvfoo0k44" path="res://img/weapons/BR180_n.png" id="5_leug0"]
 
 [sub_resource type="Animation" id="Animation_fkwtt"]
 length = 0.001
@@ -18,6 +19,18 @@ tracks/0/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 1,
 "values": [0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 0)]
 }
 
 [sub_resource type="Animation" id="Animation_iexek"]
@@ -53,12 +66,28 @@ tracks/1/keys = {
 "method": &"eject_brass"
 }]
 }
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath(".:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.6),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(-3, 0), Vector2(0, 0)]
+}
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_leug0"]
 _data = {
 &"RESET": SubResource("Animation_fkwtt"),
 &"fire": SubResource("Animation_iexek")
 }
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_uwj5g"]
+diffuse_texture = ExtResource("2_w1a4p")
+normal_texture = ExtResource("5_leug0")
 
 [node name="BR180" instance=ExtResource("1_3y8c7")]
 max_spread = 5.0
@@ -74,10 +103,10 @@ lifetime = 2.0
 libraries = {
 &"": SubResource("AnimationLibrary_leug0")
 }
-speed_scale = 5.0
+speed_scale = 7.0
 
 [node name="gun_sprite" parent="." index="5"]
-texture = ExtResource("2_w1a4p")
+texture = SubResource("CanvasTexture_uwj5g")
 
 [node name="POF" parent="." index="6"]
 position = Vector2(22, 1)

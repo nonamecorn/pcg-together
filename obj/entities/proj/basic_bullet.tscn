@@ -21,6 +21,7 @@ rotation = 1.5708
 shape = SubResource("CapsuleShape2D_ui87o")
 
 [node name="Line2D" type="Line2D" parent="."]
+modulate = Color(1.8247963, 1.8247963, 1.8247963, 1)
 top_level = true
 width = 2.0
 gradient = SubResource("Gradient_ui87o")
