@@ -2,16 +2,17 @@ extends Node2D
 class_name Gun
 
 @export var default_modules : Dictionary[String,Node2D]
-@export var max_spread: float
-@export var min_spread: float
-@export var max_ammo: int
-@export var num_of_pellets: int
+@export var max_spread: float = 1.0
+@export var min_spread: float = 0.0
+@export var max_ammo: int = 1
+@export var num_of_pellets: int = 1
 @export var bullet_obj: PackedScene
 @export var brass_texture: Texture
 @export var ver_recoil: float
 @export var hor_recoil: float
 @export var lifetime: float = 1.0
 @export var noise_radius: float = 500.0
+@export var anim_firerate: float = 1.0
 #var gun_resourcesd
 var spread_tween
 @onready var rng = RandomNumberGenerator.new()
@@ -111,7 +112,7 @@ func start_fire():
 	firing = true
 	if spread_tween: spread_tween.kill()
 	spread_tween = create_tween()
-	spread_tween.tween_property(self, "spread", max_spread, $firerate.wait_time*max_ammo)
+	spread_tween.tween_property(self, "spread", max_spread, anim_firerate*max_ammo)
 
 func stop_fire():
 	if state:
@@ -119,9 +120,8 @@ func stop_fire():
 	firing = false
 	if spread_tween: spread_tween.kill()
 	spread_tween = create_tween()
-	spread_tween.tween_property(self, "spread", min_spread, $firerate.wait_time*max_ammo)
+	spread_tween.tween_property(self, "spread", min_spread, anim_firerate*max_ammo)
 	#gpuparticles.emitting = false
-	$firerate.stop()
 
 func _on_reload_timeout():
 	stop_fire()

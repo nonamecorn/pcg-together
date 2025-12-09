@@ -1,19 +1,21 @@
-[gd_scene load_steps=4 format=3 uid="uid://i4hybqdscpxl"]
+[gd_scene load_steps=7 format=3 uid="uid://i4hybqdscpxl"]
 
 [ext_resource type="Script" uid="uid://crm7pyrgmjy74" path="res://components/mother_gun.gd" id="1_ej2mt"]
 [ext_resource type="Texture2D" uid="uid://x3y7ptg8wqmg" path="res://img/weapons/AKM_anim.png" id="1_r86ty"]
 [ext_resource type="PackedScene" uid="uid://bs1w6vvok7e7h" path="res://components/bang.tscn" id="2_su81a"]
+[ext_resource type="Script" uid="uid://dff04t7huciid" path="res://components/tip.gd" id="4_m6f6q"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_su81a"]
+radius = 4.031129
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_m6f6q"]
+radius = 2.0615528
 
 [node name="mother_gun" type="Node2D"]
 script = ExtResource("1_ej2mt")
 
-[node name="firerate" type="Timer" parent="."]
-
 [node name="reload" type="Timer" parent="."]
 one_shot = true
-
-[node name="single_shot" type="Timer" parent="."]
-wait_time = 0.1
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 
@@ -27,6 +29,18 @@ hframes = 6
 [node name="POF" type="Marker2D" parent="."]
 position = Vector2(23, -1.5)
 gizmo_extents = 5.0
+
+[node name="tip" type="Area2D" parent="POF"]
+collision_layer = 0
+script = ExtResource("4_m6f6q")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="POF/tip"]
+shape = SubResource("CircleShape2D_su81a")
+
+[node name="second_tip" type="Area2D" parent="POF/tip"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="POF/tip/second_tip"]
+shape = SubResource("CircleShape2D_m6f6q")
 
 [node name="ejector" type="Marker2D" parent="."]
 position = Vector2(1, -2)
@@ -46,3 +60,7 @@ position = Vector2(6, 0)
 
 [connection signal="timeout" from="reload" to="." method="_on_reload_timeout"]
 [connection signal="animation_finished" from="AnimationPlayer" to="." method="_on_animation_player_animation_finished"]
+[connection signal="body_entered" from="POF/tip" to="POF/tip" method="_on_body_entered"]
+[connection signal="body_exited" from="POF/tip" to="POF/tip" method="_on_body_exited"]
+[connection signal="body_entered" from="POF/tip/second_tip" to="POF/tip" method="_on_second_tip_body_entered"]
+[connection signal="body_exited" from="POF/tip/second_tip" to="POF/tip" method="_on_second_tip_body_exited"]
