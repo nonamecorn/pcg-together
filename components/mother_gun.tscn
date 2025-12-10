@@ -19,6 +19,9 @@ one_shot = true
 position = Vector2(12, 0)
 texture = ExtResource("3_m6f6q")
 
+[node name="MAG" type="Sprite2D" parent="."]
+position = Vector2(6, 0)
+
 [node name="gun_sprite" type="Sprite2D" parent="."]
 position = Vector2(6, 0)
 texture = ExtResource("1_r86ty")
@@ -41,9 +44,6 @@ position = Vector2(23, -1)
 
 [node name="ATTACH" type="Marker2D" parent="."]
 position = Vector2(11, 0)
-
-[node name="MAG" type="Marker2D" parent="."]
-position = Vector2(6, 0)
 
 [node name="BOLT" type="Node2D" parent="."]
 position = Vector2(6, 0)

@@ -1,9 +1,10 @@
-[gd_scene load_steps=11 format=3 uid="uid://4nnhn6wjky8e"]
+[gd_scene load_steps=12 format=3 uid="uid://4nnhn6wjky8e"]
 
 [ext_resource type="PackedScene" uid="uid://i4hybqdscpxl" path="res://components/mother_gun.tscn" id="1_3y8c7"]
 [ext_resource type="PackedScene" uid="uid://bjb1xhth25217" path="res://obj/entities/proj/basic_bullet.tscn" id="2_fkwtt"]
 [ext_resource type="Texture2D" uid="uid://by6vr5oww5dtf" path="res://img/weapons/BR180.png" id="2_w1a4p"]
 [ext_resource type="Texture2D" uid="uid://cry5lovl6ihi3" path="res://img/misc/Medium_casing.png" id="3_leug0"]
+[ext_resource type="Texture2D" uid="uid://dg38cy43iog4o" path="res://img/weapons/BR180_mag.png" id="4_uwj5g"]
 [ext_resource type="Texture2D" uid="uid://dmslbvfoo0k44" path="res://img/weapons/BR180_n.png" id="5_leug0"]
 
 [sub_resource type="Animation" id="Animation_fkwtt"]
@@ -148,26 +149,27 @@ speed_scale = 7.0
 [node name="HAND1" parent="." index="3"]
 position = Vector2(14, 2)
 
-[node name="gun_sprite" parent="." index="4"]
+[node name="MAG" parent="." index="4"]
+position = Vector2(-1, 5)
+texture = ExtResource("4_uwj5g")
+
+[node name="gun_sprite" parent="." index="5"]
 texture = SubResource("CanvasTexture_uwj5g")
 
-[node name="HAND2" parent="." index="5"]
+[node name="HAND2" parent="." index="6"]
 position = Vector2(6, 4)
 
-[node name="POF" parent="." index="6"]
+[node name="POF" parent="." index="7"]
 position = Vector2(22, 1)
 
-[node name="ejector" parent="." index="7"]
+[node name="ejector" parent="." index="8"]
 position = Vector2(-2, 1)
 
-[node name="MUZZLE" parent="." index="8"]
+[node name="MUZZLE" parent="." index="9"]
 position = Vector2(22, 1)
 
-[node name="ATTACH" parent="." index="9"]
+[node name="ATTACH" parent="." index="10"]
 position = Vector2(12, 2)
-
-[node name="MAG" parent="." index="10"]
-position = Vector2(-2, 3)
 
 [node name="BOLT" parent="." index="11"]
 position = Vector2(-2, 1)
