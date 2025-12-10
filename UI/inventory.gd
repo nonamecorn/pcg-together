@@ -61,6 +61,7 @@ func get_container_under_cursor(cursor_pos):
 	return null
 
 func return_item():
+	if !item_held: return
 	item_held.global_position = last_pos
 	if last_container.has_method("insert_item"):
 		last_container.insert_item(item_held)
