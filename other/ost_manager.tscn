@@ -1,0 +1,130 @@
+[gd_scene load_steps=10 format=3 uid="uid://dx085y3efeew"]
+
+[ext_resource type="Script" uid="uid://m6c34ahpldtu" path="res://other/ost_manager.gd" id="1_rbwo4"]
+
+[sub_resource type="AudioStreamPlaylist" id="AudioStreamPlaylist_lsjum"]
+stream_count = 1
+
+[sub_resource type="AudioStreamPlaylist" id="AudioStreamPlaylist_2lw7b"]
+stream_count = 1
+
+[sub_resource type="AudioStreamSynchronized" id="AudioStreamSynchronized_35w8i"]
+stream_count = 2
+stream_0/volume = 0.0
+stream_1/volume = 0.0
+
+[sub_resource type="AudioStreamPlaylist" id="AudioStreamPlaylist_l3wxu"]
+stream_count = 1
+stream_0 = SubResource("AudioStreamSynchronized_35w8i")
+
+[sub_resource type="AudioStreamInteractive" id="AudioStreamInteractive_gdf1j"]
+clip_count = 3
+clip_0/name = &"Menu"
+clip_0/stream = SubResource("AudioStreamPlaylist_lsjum")
+clip_0/auto_advance = 0
+clip_1/name = &"Shop"
+clip_1/stream = SubResource("AudioStreamPlaylist_2lw7b")
+clip_1/auto_advance = 0
+clip_2/name = &"Battle"
+clip_2/stream = SubResource("AudioStreamPlaylist_l3wxu")
+clip_2/auto_advance = 0
+_transitions = {
+Vector2i(3, 3): {
+"fade_beats": 1.0,
+"fade_mode": 0,
+"from_time": 0,
+"to_time": 0
+},
+Vector2i(3, 4): {
+"fade_beats": 1.0,
+"fade_mode": 3,
+"from_time": 1,
+"to_time": 0
+},
+Vector2i(4, 3): {
+"fade_beats": 1.0,
+"fade_mode": 3,
+"from_time": 1,
+"to_time": 0
+},
+Vector2i(4, 4): {
+"fade_beats": 1.0,
+"fade_mode": 0,
+"from_time": 0,
+"to_time": 0
+}
+}
+
+[sub_resource type="Animation" id="Animation_d81rh"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("AudioStreamPlayer:stream:clip_4/stream:stream_0:stream_1/volume")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [-30.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("AudioStreamPlayer:stream:clip_4/stream:stream_0:stream_0/volume")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+
+[sub_resource type="Animation" id="Animation_26ko1"]
+resource_name = "shift_metal"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("AudioStreamPlayer:stream:clip_4/stream:stream_0:stream_1/volume")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(0.143587, 1),
+"update": 0,
+"values": [-30.0, 0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("AudioStreamPlayer:stream:clip_4/stream:stream_0:stream_0/volume")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 0.378929),
+"update": 0,
+"values": [0.0, -30.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_6byle"]
+_data = {
+&"RESET": SubResource("Animation_d81rh"),
+&"shift_metal": SubResource("Animation_26ko1")
+}
+
+[node name="OstManager" type="Node"]
+process_mode = 3
+script = ExtResource("1_rbwo4")
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = SubResource("AudioStreamInteractive_gdf1j")
+autoplay = true
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_6byle")
+}
