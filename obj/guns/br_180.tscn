@@ -150,7 +150,6 @@ position = Vector2(14, 2)
 
 [node name="gun_sprite" parent="." index="4"]
 texture = SubResource("CanvasTexture_uwj5g")
-hframes = 7
 
 [node name="HAND2" parent="." index="5"]
 position = Vector2(6, 4)
