@@ -140,7 +140,8 @@ func reload():
 		ammo = 0
 		display_ammo()
 		#^/reload_start_cue.play()
-	$reload.start()
+	#$reload.start()
+	$AnimationPlayer.play("reload")
 	spread = min_spread
 
 #func wear_down():
@@ -237,3 +238,5 @@ func muzzle_flash():
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 	if firing and anim_name == "fire":
 		$AnimationPlayer.play("fire")
+	if anim_name == "reload":
+		_on_reload_timeout()

@@ -1,9 +1,13 @@
-[gd_scene load_steps=5 format=3 uid="uid://i4hybqdscpxl"]
+[gd_scene load_steps=9 format=3 uid="uid://i4hybqdscpxl"]
 
 [ext_resource type="Script" uid="uid://crm7pyrgmjy74" path="res://components/mother_gun.gd" id="1_ej2mt"]
 [ext_resource type="Texture2D" uid="uid://x3y7ptg8wqmg" path="res://img/weapons/AKM_anim.png" id="1_r86ty"]
 [ext_resource type="PackedScene" uid="uid://bs1w6vvok7e7h" path="res://components/bang.tscn" id="2_su81a"]
 [ext_resource type="Texture2D" uid="uid://njsvxqmpybu3" path="res://img/bodies/player/hand.png" id="3_m6f6q"]
+[ext_resource type="AudioStream" uid="uid://wns2linkd736" path="res://snd/sfx/AR_fire.wav" id="5_34doj"]
+[ext_resource type="AudioStream" uid="uid://sahxhcx3lx20" path="res://snd/sfx/bolt_cock.wav" id="5_bt522"]
+[ext_resource type="AudioStream" uid="uid://bafbloecjj2jh" path="res://snd/sfx/mag_load.wav" id="6_34doj"]
+[ext_resource type="AudioStream" uid="uid://4ycehacrxm7v" path="res://snd/sfx/mag_eject.wav" id="7_lon1w"]
 
 [node name="mother_gun" type="Node2D"]
 script = ExtResource("1_ej2mt")
@@ -47,6 +51,20 @@ position = Vector2(11, 0)
 
 [node name="BOLT" type="Node2D" parent="."]
 position = Vector2(6, 0)
+
+[node name="audio" type="Node2D" parent="."]
+
+[node name="fire" type="AudioStreamPlayer2D" parent="audio"]
+stream = ExtResource("5_34doj")
+
+[node name="rack" type="AudioStreamPlayer2D" parent="audio"]
+stream = ExtResource("5_bt522")
+
+[node name="insert" type="AudioStreamPlayer2D" parent="audio"]
+stream = ExtResource("6_34doj")
+
+[node name="release" type="AudioStreamPlayer2D" parent="audio"]
+stream = ExtResource("7_lon1w")
 
 [connection signal="timeout" from="reload" to="." method="_on_reload_timeout"]
 [connection signal="animation_finished" from="AnimationPlayer" to="." method="_on_animation_player_animation_finished"]
