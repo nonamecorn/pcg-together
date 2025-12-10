@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Item" load_steps=4 format=3 uid="uid://dh17josoyr4pg"]
+
+[ext_resource type="Script" uid="uid://d0lgewwigfpyj" path="res://res_scripts/item.gd" id="1_5esar"]
+[ext_resource type="PackedScene" uid="uid://d2br0dufkhc7q" path="res://obj/guns/sas_12.tscn" id="1_trj5u"]
+[ext_resource type="Texture2D" uid="uid://rrg2qex5fl4w" path="res://img/weapons/SAS12_prev.png" id="3_iac45"]
+
+[resource]
+script = ExtResource("1_5esar")
+item_name = "SAS12"
+type = "gun"
+sprite = ExtResource("3_iac45")
+scene = ExtResource("1_trj5u")
+metadata/_custom_type_script = "uid://d0lgewwigfpyj"

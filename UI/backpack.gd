@@ -21,6 +21,7 @@ func _ready():
 
 func insert_item(item):
 	var item_pos = item.global_position + Vector2(cell_size / 2.0, cell_size / 2.0)
+	print(item_pos - Vector2.ONE * 32.0)
 	var g_pos = pos_to_grid_coord(item_pos)
 	var item_size = get_grid_size(item)
 	if is_grid_space_available(g_pos.x, g_pos.y, item_size.x, item_size.y):
@@ -29,7 +30,7 @@ func insert_item(item):
 		item.show_NPR()
 		items.append(item)
 		return true
-	elif can_stack(get_item_under_pos(item_pos), item):
+	elif get_item_under_pos(item_pos) and can_stack(get_item_under_pos(item_pos), item):
 		var item_under = get_item_under_pos(item_pos)
 		item_under.item_resource.ammount += item.item_resource.ammount
 		item_under.update_ammount()

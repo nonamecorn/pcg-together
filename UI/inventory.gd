@@ -17,6 +17,7 @@ var popup_items = []
 
 func _ready() -> void:
 	pickup_item(load("res://res/guns/BR180.tres").duplicate())
+	pickup_item(load("res://res/guns/SAS12.tres").duplicate())
 func _physics_process(_delta):
 	if !visible: 
 		return
