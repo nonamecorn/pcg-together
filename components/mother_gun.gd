@@ -133,7 +133,7 @@ func _on_reload_timeout():
 	display_ammo()
 
 func reload():
-	if ammo == max_ammo: return
+	if ammo == max_ammo or state == STOP: return
 	stop_fire()
 	state = STOP
 	if player_handled:
@@ -241,7 +241,7 @@ func muzzle_flash():
 	get_tree().current_scene.call_deferred("add_child",muzzle_inst)
 
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:
-	if firing and anim_name == "fire":
+	if firing and anim_name == "fire" and state == FIRE:
 		$AnimationPlayer.play("fire")
 	if anim_name == "reload":
 		_on_reload_timeout()

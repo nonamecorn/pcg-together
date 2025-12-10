@@ -28,11 +28,13 @@ script = ExtResource("3_javgc")
 label = NodePath("../Label")
 initial_state = NodePath("Turret")
 
-[node name="Dead" parent="FSM" index="0" node_paths=PackedStringArray("perceptor", "ray", "gun")]
+[node name="Dead" parent="FSM" index="0" node_paths=PackedStringArray("perceptor", "ray", "gun", "animation", "handmarker")]
 script = ExtResource("4_uwxms")
 perceptor = NodePath("../../Perceptor")
 ray = NodePath("../../LOS_ray")
 gun = NodePath("../../Hand/Handmarker/BR180")
+animation = NodePath("../../AnimationPlayer")
+handmarker = NodePath("../../Hand/Handmarker")
 
 [node name="Patrol" type="Node" parent="FSM" index="1" node_paths=PackedStringArray("enemy", "cursor", "hand", "hitbox", "perceptor")]
 script = ExtResource("2_ppyn0")

@@ -21,7 +21,6 @@ func _ready():
 
 func insert_item(item):
 	var item_pos = item.global_position + Vector2(cell_size / 2.0, cell_size / 2.0)
-	print(item_pos - Vector2.ONE * 32.0)
 	var g_pos = pos_to_grid_coord(item_pos)
 	var item_size = get_grid_size(item)
 	if is_grid_space_available(g_pos.x, g_pos.y, item_size.x, item_size.y):

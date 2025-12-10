@@ -92,14 +92,20 @@ libraries = {
 [node name="FSM" parent="." index="3" node_paths=PackedStringArray("initial_state")]
 initial_state = NodePath("Walk")
 
+[node name="Dead" parent="FSM" index="0" node_paths=PackedStringArray("animation", "handmarker")]
+animation = NodePath("../../AnimationPlayer")
+handmarker = NodePath("../../Hand/Handmarker")
+
 [node name="Walk" type="Node" parent="FSM" index="1" node_paths=PackedStringArray("player", "animation")]
 script = ExtResource("3_mmb6a")
 player = NodePath("../..")
 animation = NodePath("../../AnimationPlayer")
 
-[node name="Inventory" type="Node" parent="FSM" index="2" node_paths=PackedStringArray("inventory")]
+[node name="Inventory" type="Node" parent="FSM" index="2" node_paths=PackedStringArray("inventory", "animation", "handmarker")]
 script = ExtResource("4_w8mye")
 inventory = NodePath("../../CanvasLayer/Inventory")
+animation = NodePath("../../AnimationPlayer")
+handmarker = NodePath("../../Hand/Handmarker")
 
 [node name="cursor" parent="." index="5"]
 visible = true
