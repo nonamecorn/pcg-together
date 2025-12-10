@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://4nnhn6wjky8e"]
+[gd_scene load_steps=13 format=3 uid="uid://4nnhn6wjky8e"]
 
 [ext_resource type="PackedScene" uid="uid://i4hybqdscpxl" path="res://components/mother_gun.tscn" id="1_3y8c7"]
 [ext_resource type="PackedScene" uid="uid://bjb1xhth25217" path="res://obj/entities/proj/basic_bullet.tscn" id="2_fkwtt"]
@@ -44,6 +44,42 @@ tracks/2/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [0.0]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("HAND2:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(6, 4)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("MAG:position")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(-1, 5)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("MAG:visible")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
 }
 
 [sub_resource type="Animation" id="Animation_iexek"]
@@ -120,11 +156,89 @@ tracks/1/keys = {
 "values": [0.0, -1.5782529]
 }
 
+[sub_resource type="Animation" id="Animation_uwj5g"]
+resource_name = "reload"
+length = 7.0
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5, 0.75, 6.1, 7),
+"transitions": PackedFloat32Array(1, 2, 0.5, 0.5, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(3, -2.0000002), Vector2(2, -3), Vector2(2, -3), Vector2(0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.5, 0.75, 6.1, 7),
+"transitions": PackedFloat32Array(1, 2, 0.5, 0.5, 1),
+"update": 0,
+"values": [0.0, 0.36725834, 0.2617994, 0.2617994, 0.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("HAND2:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(1, 1.6, 2.3, 3, 3.7, 4.5, 5, 5.6000004, 6, 6.7),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(6, 4), Vector2(0.32816887, 5.0884485), Vector2(0.06402564, 11.606044), Vector2(-3.0178962, 8.055576), Vector2(0.8571768, 7.843362), Vector2(1.2940958, 4.8296294), Vector2(-0.2588191, -0.96592665), Vector2(-2, -1), Vector2(-4, -1), Vector2(6, 4)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("MAG:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(1.6, 2.3, 3, 3.7, 4.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(-1, 5), Vector2(-1.2641432, 11.517595), Vector2(-4.949748, 8.573214), Vector2(-1.0746746, 8.360999), Vector2(-1, 5)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("MAG:visible")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 2.3, 3),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [true, false, true]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("gun_sprite:frame")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 5.55, 6, 6.5, 6.7, 6.9),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 0]
+}
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_leug0"]
 _data = {
 &"RESET": SubResource("Animation_fkwtt"),
 &"fire": SubResource("Animation_iexek"),
-&"hind": SubResource("Animation_leug0")
+&"hind": SubResource("Animation_leug0"),
+&"reload": SubResource("Animation_uwj5g")
 }
 
 [sub_resource type="CanvasTexture" id="CanvasTexture_uwj5g"]
@@ -147,9 +261,10 @@ libraries = {
 speed_scale = 7.0
 
 [node name="HAND1" parent="." index="3"]
-position = Vector2(14, 2)
+position = Vector2(13, 2)
 
 [node name="MAG" parent="." index="4"]
+visible = false
 position = Vector2(-1, 5)
 texture = ExtResource("4_uwj5g")
 
