@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://cj42rivp6owbq"]
+[gd_scene load_steps=17 format=3 uid="uid://cj42rivp6owbq"]
 
 [ext_resource type="PackedScene" uid="uid://vxlnckbeqm4y" path="res://components/mother_body.tscn" id="1_e42ip"]
 [ext_resource type="Script" uid="uid://bm3wjni3c3813" path="res://obj/entities/bodies/player/player.gd" id="2_kpwks"]
@@ -10,6 +10,9 @@
 [ext_resource type="Script" uid="uid://6qchh0308yjc" path="res://obj/entities/bodies/player/camera_2d.gd" id="5_w8mye"]
 [ext_resource type="PackedScene" uid="uid://dhhg35brss5lu" path="res://UI/inventory.tscn" id="7_bmp72"]
 [ext_resource type="Texture2D" uid="uid://bd8c6yrx713ol" path="res://img/misc/256x256 textures (101).png" id="10_jevgb"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_jevgb"]
+light_mode = 1
 
 [sub_resource type="CanvasTexture" id="CanvasTexture_cnqlk"]
 diffuse_texture = ExtResource("3_r4var")
@@ -77,6 +80,7 @@ script = ExtResource("2_kpwks")
 MAX_HP = 10000.0
 
 [node name="BodySprite" parent="." index="1"]
+material = SubResource("CanvasItemMaterial_jevgb")
 texture = SubResource("CanvasTexture_cnqlk")
 hframes = 10
 
@@ -120,5 +124,11 @@ script = ExtResource("5_kjt16")
 
 [node name="PointLight2D" type="PointLight2D" parent="." index="9"]
 shadow_enabled = true
+texture = ExtResource("10_jevgb")
+height = 30.0
+
+[node name="PointLight2D2" type="PointLight2D" parent="." index="10"]
+range_item_cull_mask = 2
+shadow_item_cull_mask = 2
 texture = ExtResource("10_jevgb")
 height = 30.0
