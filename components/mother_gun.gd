@@ -228,7 +228,7 @@ func eject_brass():
 func eject_mag():
 	var brass_inst = brass_obj.instantiate()
 	brass_inst.global_position = $MAG.global_position
-	brass_inst.global_rotation = global_rotation + rng.randf_range(-PI/8, PI/8) - PI/2
+	brass_inst.global_rotation = global_rotation + rng.randf_range(-PI/8, PI/8) -sign(global_scale.y)*PI/2
 	brass_inst.get_child(0).texture = $MAG.texture
 	brass_inst.velocity_range = [200, 300] 
 	added_velocity = get_parent().get_parent().get_parent().velocity/2
@@ -245,3 +245,5 @@ func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 		$AnimationPlayer.play("fire")
 	if anim_name == "reload":
 		_on_reload_timeout()
+		if firing:
+			$AnimationPlayer.play("fire")
