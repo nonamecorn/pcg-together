@@ -300,6 +300,20 @@ tracks/8/keys = {
 "method": &"play"
 }]
 }
+tracks/9/type = "method"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath(".")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(2.3),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"eject_mag"
+}]
+}
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_leug0"]
 _data = {

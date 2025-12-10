@@ -161,7 +161,7 @@ func display_ammo():
 	ammo_changed.emit(ammo,max_ammo,get_index())
 
 func get_pitch() -> float:
-	return rng.randf_range(1,1.5)
+	return rng.randf_range(1.0,1.1)
 
 func fire():
 	if state: return
@@ -228,8 +228,9 @@ func eject_brass():
 func eject_mag():
 	var brass_inst = brass_obj.instantiate()
 	brass_inst.global_position = $MAG.global_position
-	brass_inst.global_rotation = global_rotation + rng.randf_range(-PI/8, PI/8)
+	brass_inst.global_rotation = global_rotation + rng.randf_range(-PI/8, PI/8) - PI/2
 	brass_inst.get_child(0).texture = $MAG.texture
+	brass_inst.velocity_range = [200, 300] 
 	added_velocity = get_parent().get_parent().get_parent().velocity/2
 	get_tree().current_scene.call_deferred("add_child",brass_inst)
 	#brass_inst.init(added_velocity, lifetime)
