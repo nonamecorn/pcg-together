@@ -147,6 +147,7 @@ speed_scale = 7.0
 
 [node name="gun_sprite" parent="." index="3"]
 texture = SubResource("CanvasTexture_uwj5g")
+hframes = 7
 
 [node name="POF" parent="." index="4"]
 position = Vector2(22, 1)
