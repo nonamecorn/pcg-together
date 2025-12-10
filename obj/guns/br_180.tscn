@@ -145,27 +145,30 @@ libraries = {
 }
 speed_scale = 7.0
 
-[node name="gun_sprite" parent="." index="3"]
+[node name="HAND1" parent="." index="3"]
+position = Vector2(14, 2)
+
+[node name="gun_sprite" parent="." index="4"]
 texture = SubResource("CanvasTexture_uwj5g")
 hframes = 7
 
-[node name="POF" parent="." index="4"]
+[node name="HAND2" parent="." index="5"]
+position = Vector2(6, 4)
+
+[node name="POF" parent="." index="6"]
 position = Vector2(22, 1)
 
-[node name="tip" parent="POF" index="0" node_paths=PackedStringArray("anim")]
-anim = NodePath("../../AnimationPlayer")
-
-[node name="ejector" parent="." index="5"]
+[node name="ejector" parent="." index="7"]
 position = Vector2(-2, 1)
 
-[node name="MUZZLE" parent="." index="6"]
+[node name="MUZZLE" parent="." index="8"]
 position = Vector2(22, 1)
 
-[node name="ATTACH" parent="." index="7"]
+[node name="ATTACH" parent="." index="9"]
 position = Vector2(12, 2)
 
-[node name="MAG" parent="." index="8"]
+[node name="MAG" parent="." index="10"]
 position = Vector2(-2, 3)
 
-[node name="BOLT" parent="." index="9"]
+[node name="BOLT" parent="." index="11"]
 position = Vector2(-2, 1)
