@@ -160,13 +160,8 @@ func reload():
 func display_ammo():
 	ammo_changed.emit(ammo,max_ammo,get_index())
 
-#func get_pitch() -> float:
-	#if ammo <= 20:
-		#return pitch_shifing.sample(ammo)
-	#if !silenced:
-		#return rng.randf_range(0.9,1.1)
-	#else:
-		#return rng.randf_range(0.5,1.5)
+func get_pitch() -> float:
+	return rng.randf_range(0.5,1.5)
 
 func fire():
 	if state: return
@@ -187,6 +182,7 @@ func fire():
 		#else:
 			#^/silenced_shooting.pitch_scale = get_pitch()
 			#^/silenced_shooting.play()
+		$audio/fire.pitch_scale = get_pitch()
 		$BANG.bang()
 		var bullet_inst = bullet_obj.instantiate()
 		bullet_inst.global_rotation_degrees = global_rotation_degrees + rng.randf_range(-spread, spread)
