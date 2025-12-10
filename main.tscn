@@ -12,6 +12,8 @@ tonemap_white = 0.75
 glow_enabled = true
 glow_normalized = true
 glow_intensity = 1.0
+glow_strength = 0.75
+glow_bloom = 0.1
 glow_blend_mode = 0
 glow_hdr_threshold = 1.1
 fog_mode = 1
@@ -37,7 +39,7 @@ position = Vector2(672, 33)
 position = Vector2(190, 220)
 
 [node name="CanvasModulate" type="CanvasModulate" parent="."]
-color = Color(0.42358288, 0.42358288, 0.42358288, 1)
+color = Color(0.3145, 0.3441, 0.37, 1)
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_h2yge")

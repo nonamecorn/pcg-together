@@ -143,8 +143,10 @@ script = ExtResource("2_bx03t")
 [node name="PointLight2D" type="PointLight2D" parent="."]
 scale = Vector2(0.5, 0.5)
 color = Color(1, 1, 0.58383155, 1)
+energy = 5.0
 shadow_enabled = true
+shadow_filter_smooth = 50.0
 texture = ExtResource("3_wn631")
-height = 30.0
+height = 250.0
 
 [connection signal="animation_finished" from="." to="." method="_on_animation_finished"]

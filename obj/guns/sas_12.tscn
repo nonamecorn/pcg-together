@@ -92,7 +92,7 @@ tracks/6/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [0.7853982]
+"values": [0.0]
 }
 tracks/7/type = "value"
 tracks/7/imported = false
@@ -180,7 +180,7 @@ tracks/4/keys = {
 
 [sub_resource type="Animation" id="Animation_65ovf"]
 resource_name = "reload"
-length = 12.0
+length = 11.5
 step = 0.1
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -189,10 +189,10 @@ tracks/0/path = NodePath(".:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.75, 1.2, 10, 12),
-"transitions": PackedFloat32Array(1, 0.5, 0.5, 0.5, 2),
+"times": PackedFloat32Array(0, 0.75, 1.2, 10, 11.3, 11.5),
+"transitions": PackedFloat32Array(1, 0.5, 0.5, 0.5, 0.5, 0.5),
 "update": 0,
-"values": [Vector2(0, 3), Vector2(1.0000002, 2.0000002), Vector2(-1, 2.9999998), Vector2(-1, 2.9999998), Vector2(0, 3)]
+"values": [Vector2(0, 3), Vector2(1.0000002, 2.0000002), Vector2(-1, 2.9999998), Vector2(-1, 2.9999998), Vector2(1, 2), Vector2(0, 3)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -201,10 +201,10 @@ tracks/1/path = NodePath(".:rotation")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 1.0127409, 1.2, 10, 12),
-"transitions": PackedFloat32Array(1, 0.5, 0.5, 0.5, 2),
+"times": PackedFloat32Array(0, 1.0127409, 1.2, 10, 11.1, 11.5),
+"transitions": PackedFloat32Array(1, 0.5, 0.5, 0.5, 0.5, 0.5),
 "update": 0,
-"values": [0.0, -0.5585053606381855, -0.5235988, -0.5235988, 0.0]
+"values": [0.0, -0.5585053606381855, -0.5235988, -0.5235988, 0.05235987755982989, 0.0]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -376,7 +376,6 @@ hframes = 5
 
 [node name="HAND2" parent="." index="6"]
 position = Vector2(-4, 3)
-rotation = 0.7853982
 
 [node name="ejector" parent="." index="8"]
 position = Vector2(3, -2)
