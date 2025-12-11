@@ -27,6 +27,8 @@ public partial class Voronoi : Node {
     [Export] public int StrokeWidth = 1;
     /// Generated Voronoi graph data.
     public VoronoiDiagram? Diagram { get; private set; }
+    /// Seed chain used for the last generation pass.
+    public VoronoiSeedChain SeedChain { get; private set; }
 
     public override void _Ready() {
         if (GenerateOnReady) {
@@ -36,13 +38,20 @@ public partial class Voronoi : Node {
 
     /// Runs Poisson sampling and builds the Voronoi topology (no drawing).
     public void Generate() {
+        var seeds = new VoronoiSeedChain(Seed);
+        Generate(seeds);
+    }
+
+    /// Runs Poisson sampling using a supplied deterministic seed chain.
+    public void Generate(VoronoiSeedChain seeds) {
+        SeedChain = seeds;
         var padding = Mathf.Max(0, SeedPadding);
         var innerSize = new Vector2I(
             Mathf.Max(1, CanvasSize.X - padding * 2),
             Mathf.Max(1, CanvasSize.Y - padding * 2)
         );
 
-        var samples = PoissonDS.Generate(innerSize, PoissonRadius, PoissonAttempts, Seed);
+        var samples = PoissonDS.Generate(innerSize, PoissonRadius, PoissonAttempts, SeedChain.PoissonSeed);
         var shiftedSamples = new List<Vector2>(samples.Count);
         var offset = new Vector2(padding, padding);
         foreach (var s in samples) {

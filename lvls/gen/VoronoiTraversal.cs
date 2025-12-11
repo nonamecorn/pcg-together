@@ -11,7 +11,7 @@ public static class VoronoiTraversal {
                                               bool includeBorderEdges = true, float connectionDistributionScaling = 1f) {
         neighborRatio = Mathf.Clamp(neighborRatio, 0f, 1f);
         connectionDistributionScaling = Mathf.Clamp(connectionDistributionScaling, 0f, 1f);
-        var rng = new RandomNumberGenerator { Seed = (ulong)rngSeed };
+        var rng = new DeterministicRng(rngSeed);
 
         var neighborPairs = CollectNeighborPairs(diagram);
         var candidates = new List<EdgeCandidate>();
@@ -51,7 +51,7 @@ public static class VoronoiTraversal {
                 continue;
             }
 
-            var point = SamplePointOnEdge(edge, rng, connectionDistributionScaling);
+            var point = SamplePointOnEdge(edge, ref rng, connectionDistributionScaling);
             connections.Add(new VoronoiConnection(edge.SeedA, edge.SeedB, cand.EdgeIndex, point, cand.Weight));
             connectedPairs.Add(pair);
         }
@@ -79,7 +79,7 @@ public static class VoronoiTraversal {
 
         while (connections.Count < targetConnections && remainingEdges.Count > 0 && attempts < maxAttempts) {
             attempts++;
-            var pick = rng.Randf() * cumulative[cumulative.Count - 1];
+            var pick = rng.NextFloat() * cumulative[cumulative.Count - 1];
             var idx = BinarySearchCumulative(cumulative, pick);
             var edgeIndex = remainingEdges[idx];
             var edge = diagram.Edges[edgeIndex];
@@ -90,7 +90,7 @@ public static class VoronoiTraversal {
                 continue;
             }
 
-            var point = SamplePointOnEdge(edge, rng, connectionDistributionScaling);
+            var point = SamplePointOnEdge(edge, ref rng, connectionDistributionScaling);
             connections.Add(new VoronoiConnection(edge.SeedA, edge.SeedB, edgeIndex, point, edge.From.DistanceTo(edge.To)));
             connectedPairs.Add(pair);
 
@@ -144,8 +144,8 @@ public static class VoronoiTraversal {
         cumulative = BuildCumulative(weights);
     }
 
-    private static Vector2 SamplePointOnEdge(VoronoiEdge edge, RandomNumberGenerator rng, float distributionScale) {
-        var t = rng.Randf();
+    private static Vector2 SamplePointOnEdge(VoronoiEdge edge, ref DeterministicRng rng, float distributionScale) {
+        var t = rng.NextFloat();
         var smooth = 3f * t * t - 2f * t * t * t; // cubic smoothstep
         var scaled = ((smooth - 0.5f) * distributionScale) + 0.5f;
         return edge.From.Lerp(edge.To, scaled);

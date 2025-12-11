@@ -30,7 +30,7 @@ public partial class PoissonDS : Node {
             throw new ArgumentException("Radius must be > 0", nameof(radius));
         }
 
-        var rng = seed == 0 ? new RandomNumberGenerator() : new RandomNumberGenerator { Seed = (ulong)seed };
+        var rng = new DeterministicRng(seed);
         var result = new List<Vector2>();
         var active = new List<Vector2>();
 
@@ -45,7 +45,7 @@ public partial class PoissonDS : Node {
         }
 
         Vector2 FirstSample() {
-            return new Vector2(rng.Randf() * regionSize.X, rng.Randf() * regionSize.Y);
+            return new Vector2(rng.NextFloat() * regionSize.X, rng.NextFloat() * regionSize.Y);
         }
 
         void StoreSample(Vector2 sample) {
@@ -60,12 +60,12 @@ public partial class PoissonDS : Node {
         var radiusSquared = radius * radius;
 
         while (active.Count > 0) {
-            var activeIndex = rng.RandiRange(0, active.Count - 1);
+            var activeIndex = rng.NextInt(0, active.Count - 1);
             var center = active[activeIndex];
             var found = false;
 
             for (var i = 0; i < rejectionSamples; i++) {
-                var candidate = GenerateCandidate(center, radius, rng);
+                var candidate = GenerateCandidate(center, radius, ref rng);
                 if (!IsInside(candidate, regionSize)) {
                     continue;
                 }
@@ -97,10 +97,10 @@ public partial class PoissonDS : Node {
         return point.X >= 0 && point.X < regionSize.X && point.Y >= 0 && point.Y < regionSize.Y;
     }
 
-    private static Vector2 GenerateCandidate(Vector2 center, float radius, RandomNumberGenerator rng) {
+    private static Vector2 GenerateCandidate(Vector2 center, float radius, ref DeterministicRng rng) {
         // Sample radius uniformly over the annulus to avoid clustering.
-        var distance = radius * (1f + Mathf.Sqrt(rng.Randf()));
-        var angle = rng.Randf() * Mathf.Tau;
+        var distance = radius * (1f + Mathf.Sqrt(rng.NextFloat()));
+        var angle = rng.NextFloat() * Mathf.Tau;
         var offset = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * distance;
         return center + offset;
     }
