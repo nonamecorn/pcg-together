@@ -4,19 +4,17 @@ using Godot;
 
 namespace PCGTogether.lvls.gen;
 
-/// Builds a traversal graph over a Voronoi diagram by randomly selecting edges (weighted by length)
-/// until the graph is connected and a neighbour coverage ratio is reached.
+/// Builds a traversal graph over a Voronoi diagram by first creating a biased spanning tree (Kruskal-style),
+/// then sampling additional edges (weighted by length) until a neighbour coverage ratio is reached.
 public static class VoronoiTraversal {
     public static VoronoiTraversalGraph Build(VoronoiDiagram diagram, float neighborRatio = 0.75f, int rngSeed = 12345,
-                                              bool includeBorderEdges = true) {
+                                              bool includeBorderEdges = true, float connectionDistributionScaling = 1f) {
         neighborRatio = Mathf.Clamp(neighborRatio, 0f, 1f);
+        connectionDistributionScaling = Mathf.Clamp(connectionDistributionScaling, 0f, 1f);
         var rng = new RandomNumberGenerator { Seed = (ulong)rngSeed };
 
         var neighborPairs = CollectNeighborPairs(diagram);
-        var targetConnections = Math.Max(diagram.Seeds.Count - 1, Mathf.CeilToInt(neighborPairs.Count * neighborRatio));
-
-        var candidateEdges = new List<int>();
-        var candidateWeights = new List<float>();
+        var candidates = new List<EdgeCandidate>();
         for (var i = 0; i < diagram.Edges.Count; i++) {
             var edge = diagram.Edges[i];
             if (!includeBorderEdges && edge.IsBorder) {
@@ -28,44 +26,75 @@ public static class VoronoiTraversal {
                 continue;
             }
 
-            candidateEdges.Add(i);
-            candidateWeights.Add(length);
+            // Use length as weight; Kruskal phase sorts descending to favor longer edges.
+            candidates.Add(new EdgeCandidate(i, length));
         }
 
         var connections = new List<VoronoiConnection>();
         var connectedPairs = new HashSet<PairKey>();
         var unionFind = new UnionFind(diagram.Seeds.Count);
 
-        var cumulative = BuildCumulative(candidateWeights);
+        // Phase 1: spanning tree with Kruskal (biased toward longer edges).
+        candidates.Sort((a, b) => b.Weight.CompareTo(a.Weight));
+        foreach (var cand in candidates) {
+            if (unionFind.ComponentCount == 1) {
+                break;
+            }
 
-        int iterations = 0;
-        var maxIterations = Math.Max(1, candidateEdges.Count * 10);
+            var edge = diagram.Edges[cand.EdgeIndex];
+            var pair = new PairKey(edge.SeedA, edge.SeedB);
+            if (connectedPairs.Contains(pair)) {
+                continue;
+            }
 
-        while ((unionFind.ComponentCount > 1 || connections.Count < targetConnections) &&
-               candidateEdges.Count > 0 && iterations < maxIterations) {
-            iterations++;
+            if (!unionFind.Union(edge.SeedA, edge.SeedB)) {
+                continue;
+            }
 
+            var point = SamplePointOnEdge(edge, rng, connectionDistributionScaling);
+            connections.Add(new VoronoiConnection(edge.SeedA, edge.SeedB, cand.EdgeIndex, point, cand.Weight));
+            connectedPairs.Add(pair);
+        }
+
+        // Phase 2: add edges until neighbour coverage ratio reached (still biasing longer edges).
+        var coverageTarget = Mathf.CeilToInt(neighborPairs.Count * neighborRatio);
+        var targetConnections = Math.Max(connections.Count, coverageTarget);
+
+        var remainingEdges = new List<int>();
+        var remainingWeights = new List<float>();
+        foreach (var cand in candidates) {
+            var edge = diagram.Edges[cand.EdgeIndex];
+            var pair = new PairKey(edge.SeedA, edge.SeedB);
+            if (connectedPairs.Contains(pair)) {
+                continue;
+            }
+
+            remainingEdges.Add(cand.EdgeIndex);
+            remainingWeights.Add(cand.Weight);
+        }
+
+        var cumulative = BuildCumulative(remainingWeights);
+        var attempts = 0;
+        var maxAttempts = Math.Max(1, remainingEdges.Count * 5);
+
+        while (connections.Count < targetConnections && remainingEdges.Count > 0 && attempts < maxAttempts) {
+            attempts++;
             var pick = rng.Randf() * cumulative[cumulative.Count - 1];
             var idx = BinarySearchCumulative(cumulative, pick);
-            var edgeIndex = candidateEdges[idx];
+            var edgeIndex = remainingEdges[idx];
             var edge = diagram.Edges[edgeIndex];
             var pair = new PairKey(edge.SeedA, edge.SeedB);
 
             if (connectedPairs.Contains(pair)) {
-                RemoveCandidate(candidateEdges, candidateWeights, idx, out cumulative);
+                RemoveCandidate(remainingEdges, remainingWeights, idx, out cumulative);
                 continue;
             }
 
-            var t = rng.Randf();
-            var smooth = 3f * t * t - 2f * t * t * t; // cubic smoothstep
-            var point = edge.From.Lerp(edge.To, smooth);
-
-            connections.Add(new VoronoiConnection(edge.SeedA, edge.SeedB, edgeIndex, point,
-                edge.From.DistanceTo(edge.To)));
+            var point = SamplePointOnEdge(edge, rng, connectionDistributionScaling);
+            connections.Add(new VoronoiConnection(edge.SeedA, edge.SeedB, edgeIndex, point, edge.From.DistanceTo(edge.To)));
             connectedPairs.Add(pair);
-            unionFind.Union(edge.SeedA, edge.SeedB);
 
-            RemoveCandidate(candidateEdges, candidateWeights, idx, out cumulative);
+            RemoveCandidate(remainingEdges, remainingWeights, idx, out cumulative);
         }
 
         return new VoronoiTraversalGraph(diagram, neighborPairs.Count, targetConnections, connections, connectedPairs);
@@ -114,6 +143,23 @@ public static class VoronoiTraversal {
         weights.RemoveAt(index);
         cumulative = BuildCumulative(weights);
     }
+
+    private static Vector2 SamplePointOnEdge(VoronoiEdge edge, RandomNumberGenerator rng, float distributionScale) {
+        var t = rng.Randf();
+        var smooth = 3f * t * t - 2f * t * t * t; // cubic smoothstep
+        var scaled = ((smooth - 0.5f) * distributionScale) + 0.5f;
+        return edge.From.Lerp(edge.To, scaled);
+    }
+
+    private readonly struct EdgeCandidate {
+        public readonly int EdgeIndex;
+        public readonly float Weight;
+
+        public EdgeCandidate(int edgeIndex, float weight) {
+            EdgeIndex = edgeIndex;
+            Weight = weight;
+        }
+    }
 }
 
 /// Traversal graph built from Voronoi connectivity.
@@ -146,8 +192,10 @@ public class VoronoiTraversalGraph {
         var image = Diagram.DrawDebugImage(Diagram.Size, edgeColor.Value, seedColor.Value, strokeWidth);
 
         foreach (var connection in _connections) {
-            var edge = Diagram.Edges[connection.EdgeIndex];
-            DrawLine(image, edge.From, edge.To, connectionColor.Value, connectionStroke);
+            var seedA = Diagram.Seeds[connection.CellA];
+            var seedB = Diagram.Seeds[connection.CellB];
+            DrawLine(image, seedA, connection.PointOnEdge, connectionColor.Value, connectionStroke);
+            DrawLine(image, seedB, connection.PointOnEdge, connectionColor.Value, connectionStroke);
             DrawCircle(image, connection.PointOnEdge, connectionPointRadius, connectionColor.Value);
         }
 

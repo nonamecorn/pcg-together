@@ -18,6 +18,7 @@ public partial class VoronoiDebugView : Node2D {
     [Export] public bool GenerateOnReady = true;
     [Export] public float NeighborCoverage = 0.75f;
     [Export] public int TraversalSeed = 42;
+    [Export(PropertyHint.Range, "0,1,0.01")] public float ConnectionDistributionScaling = 1f;
     [Export] public int ConnectionStroke = 2;
     [Export] public int ConnectionPointRadius = 3;
 
@@ -59,7 +60,7 @@ public partial class VoronoiDebugView : Node2D {
                 );
                 break;
             case DebugMode.Traversal:
-                _traversal = VoronoiTraversal.Build(_voronoi.Diagram, NeighborCoverage, TraversalSeed);
+                _traversal = VoronoiTraversal.Build(_voronoi.Diagram, NeighborCoverage, TraversalSeed, true, ConnectionDistributionScaling);
                 _texture = ImageTexture.CreateFromImage(
                     _traversal.DrawDebugImageWithConnections(_voronoi.EdgeColor, _voronoi.SeedColor, null,
                         _voronoi.StrokeWidth, ConnectionStroke, ConnectionPointRadius)

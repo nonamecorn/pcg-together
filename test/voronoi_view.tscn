@@ -10,6 +10,8 @@ script = ExtResource("1_kswa5")
 VoronoiNodePath = NodePath("Voronoi")
 SpriteNodePath = NodePath("Sprite2D")
 Mode = 1
+NeighborCoverage = 0.5
+ConnectionDistributionScaling = 0.75
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = SubResource("ImageTexture_h2gic")
@@ -17,3 +19,5 @@ offset = Vector2(256, 256)
 
 [node name="Voronoi" type="Node2D" parent="."]
 script = ExtResource("2_no5n2")
+EdgeColor = Color(0, 0, 0, 1)
+StrokeWidth = 2
