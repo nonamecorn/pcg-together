@@ -67,12 +67,19 @@ public partial class Voronoi : Node {
             return null;
         }
 
-        if (!IsInsideCanvas(point)) {
+        if (!IsInsideCanvas(point) || Diagram.OwnershipGrid == null) {
             return null;
         }
 
-        var nearestIndex = FindNearestSeedIndex(point);
-        return Diagram.Cells[nearestIndex];
+        if (!TryGetOwnershipIndex(point, Diagram.OwnershipGrid, Diagram.Size, out var cellIndex)) {
+            return null;
+        }
+
+        if (cellIndex < 0 || cellIndex >= Diagram.Cells.Count) {
+            return null;
+        }
+
+        return Diagram.Cells[cellIndex];
     }
 
     /// Checks whether the provided point belongs to the specified cell (i.e., that cell's seed is the closest and the point lies within the canvas).
@@ -81,12 +88,11 @@ public partial class Voronoi : Node {
             return false;
         }
 
-        if (!IsInsideCanvas(point)) {
+        if (!IsInsideCanvas(point) || Diagram.OwnershipGrid == null) {
             return false;
         }
 
-        var nearestIndex = FindNearestSeedIndex(point);
-        return nearestIndex == cellIndex;
+        return TryGetOwnershipIndex(point, Diagram.OwnershipGrid, Diagram.Size, out var owner) && owner == cellIndex;
     }
 
     private int FindNearestSeedIndex(Vector2 point) {
@@ -108,6 +114,18 @@ public partial class Voronoi : Node {
         var bounds = new Rect2(Vector2.Zero, CanvasSize);
         return bounds.HasPoint(point);
     }
+
+    private static bool TryGetOwnershipIndex(Vector2 point, int[,] ownership, Vector2I size, out int index) {
+        var x = Mathf.FloorToInt(point.X);
+        var y = Mathf.FloorToInt(point.Y);
+        if (x < 0 || y < 0 || x >= size.X || y >= size.Y) {
+            index = -1;
+            return false;
+        }
+
+        index = ownership[x, y];
+        return index >= 0;
+    }
 }
 
 /// Voronoi graph consisting of seeds, cells, and edges.
@@ -122,13 +140,17 @@ public class VoronoiDiagram {
     public readonly List<VoronoiEdge> Edges;
     /// Delaunay triangles backing the diagram.
     public readonly List<DelaunayTriangle> Triangles;
+    /// Ownership grid mapping each pixel to the nearest seed index; -1 when empty.
+    public readonly int[,] OwnershipGrid;
 
-    private VoronoiDiagram(Vector2I size, List<Vector2> seeds, List<VoronoiCell> cells, List<VoronoiEdge> edges, List<DelaunayTriangle> triangles) {
+    private VoronoiDiagram(Vector2I size, List<Vector2> seeds, List<VoronoiCell> cells, List<VoronoiEdge> edges,
+                           List<DelaunayTriangle> triangles, int[,] ownershipGrid) {
         Size = size;
         Seeds = seeds;
         Cells = cells;
         Edges = edges;
         Triangles = triangles;
+        OwnershipGrid = ownershipGrid;
     }
 
     /// Builds a Voronoi diagram from the given seeds, clipped to the provided size.
@@ -139,7 +161,8 @@ public class VoronoiDiagram {
         }
 
         if (seeds.Count < 2) {
-            return new VoronoiDiagram(size, seeds, cells, new List<VoronoiEdge>(), new List<DelaunayTriangle>());
+            var ownershipSingle = BuildOwnershipGrid(seeds, size);
+            return new VoronoiDiagram(size, seeds, cells, new List<VoronoiEdge>(), new List<DelaunayTriangle>(), ownershipSingle);
         }
 
         if (seeds.Count == 2) {
@@ -162,13 +185,15 @@ public class VoronoiDiagram {
             var edgesList = new List<VoronoiEdge> { edge };
             cells[0].EdgeIndices.Add(0);
             cells[1].EdgeIndices.Add(0);
-            return new VoronoiDiagram(size, seeds, cells, edgesList, new List<DelaunayTriangle>());
+            var ownershipTwo = BuildOwnershipGrid(seeds, size);
+            return new VoronoiDiagram(size, seeds, cells, edgesList, new List<DelaunayTriangle>(), ownershipTwo);
         }
 
         var triangles = BuildDelaunayTriangles(seeds);
         var edges = BuildEdgesFromDelaunay(seeds, size, cells, triangles);
         ComputeBoundingBoxes(cells, edges);
-        return new VoronoiDiagram(size, seeds, cells, edges, triangles);
+        var ownership = BuildOwnershipGrid(seeds, size);
+        return new VoronoiDiagram(size, seeds, cells, edges, triangles, ownership);
     }
 
     private static List<DelaunayTriangle> BuildDelaunayTriangles(List<Vector2> seeds) {
@@ -185,6 +210,38 @@ public class VoronoiDiagram {
         }
 
         return triangles;
+    }
+
+    private static int[,] BuildOwnershipGrid(List<Vector2> seeds, Vector2I size) {
+        var width = size.X;
+        var height = size.Y;
+        var grid = new int[width, height];
+        if (seeds.Count == 0) {
+            for (var x = 0; x < width; x++) {
+                for (var y = 0; y < height; y++) {
+                    grid[x, y] = -1;
+                }
+            }
+            return grid;
+        }
+
+        for (var x = 0; x < width; x++) {
+            for (var y = 0; y < height; y++) {
+                var point = new Vector2(x + 0.5f, y + 0.5f);
+                var bestIndex = 0;
+                var bestDist = point.DistanceSquaredTo(seeds[0]);
+                for (var i = 1; i < seeds.Count; i++) {
+                    var dist = point.DistanceSquaredTo(seeds[i]);
+                    if (dist < bestDist) {
+                        bestDist = dist;
+                        bestIndex = i;
+                    }
+                }
+                grid[x, y] = bestIndex;
+            }
+        }
+
+        return grid;
     }
 
     private static List<VoronoiEdge> BuildEdgesFromDelaunay(List<Vector2> seeds, Vector2I size, List<VoronoiCell> cells, List<DelaunayTriangle> triangles) {
