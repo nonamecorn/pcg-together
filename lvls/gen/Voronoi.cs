@@ -51,6 +51,54 @@ public partial class Voronoi : Node {
 
         Diagram = VoronoiDiagram.Build(shiftedSamples, CanvasSize);
     }
+
+    /// Finds the Voronoi cell whose seed is closest to the given point. Returns null if no diagram is available or the point is outside the canvas.
+    public VoronoiCell? FindCell(Vector2 point) {
+        if (Diagram == null || Diagram.Seeds.Count == 0) {
+            return null;
+        }
+
+        if (!IsInsideCanvas(point)) {
+            return null;
+        }
+
+        var nearestIndex = FindNearestSeedIndex(point);
+        return Diagram.Cells[nearestIndex];
+    }
+
+    /// Checks whether the provided point belongs to the specified cell (i.e., that cell's seed is the closest and the point lies within the canvas).
+    public bool IsPointInCell(int cellIndex, Vector2 point) {
+        if (Diagram == null || cellIndex < 0 || cellIndex >= Diagram.Cells.Count) {
+            return false;
+        }
+
+        if (!IsInsideCanvas(point)) {
+            return false;
+        }
+
+        var nearestIndex = FindNearestSeedIndex(point);
+        return nearestIndex == cellIndex;
+    }
+
+    private int FindNearestSeedIndex(Vector2 point) {
+        var seeds = Diagram!.Seeds;
+        var bestIndex = 0;
+        var bestDist = point.DistanceSquaredTo(seeds[0]);
+        for (var i = 1; i < seeds.Count; i++) {
+            var dist = point.DistanceSquaredTo(seeds[i]);
+            if (dist < bestDist) {
+                bestDist = dist;
+                bestIndex = i;
+            }
+        }
+
+        return bestIndex;
+    }
+
+    private bool IsInsideCanvas(Vector2 point) {
+        var bounds = new Rect2(Vector2.Zero, CanvasSize);
+        return bounds.HasPoint(point);
+    }
 }
 
 /// Voronoi graph consisting of seeds, cells, and edges.
@@ -110,6 +158,7 @@ public class VoronoiDiagram {
 
         var triangles = BuildDelaunayTriangles(seeds);
         var edges = BuildEdgesFromDelaunay(seeds, size, cells, triangles);
+        ComputeBoundingBoxes(cells, edges);
         return new VoronoiDiagram(size, seeds, cells, edges, triangles);
     }
 
@@ -210,6 +259,37 @@ public class VoronoiDiagram {
         }
 
         return voronoiEdges;
+    }
+
+    private static void ComputeBoundingBoxes(List<VoronoiCell> cells, List<VoronoiEdge> edges) {
+        for (var i = 0; i < cells.Count; i++) {
+            var cell = cells[i];
+            var minX = Mathf.FloorToInt(cell.Seed.X);
+            var minY = Mathf.FloorToInt(cell.Seed.Y);
+            var maxX = Mathf.CeilToInt(cell.Seed.X);
+            var maxY = Mathf.CeilToInt(cell.Seed.Y);
+
+            foreach (var edgeIndex in cell.EdgeIndices) {
+                if (edgeIndex < 0 || edgeIndex >= edges.Count) {
+                    continue;
+                }
+
+                var e = edges[edgeIndex];
+                ExpandBounds(e.From, ref minX, ref minY, ref maxX, ref maxY);
+                ExpandBounds(e.To, ref minX, ref minY, ref maxX, ref maxY);
+            }
+
+            var sizeX = Math.Max(1, maxX - minX + 1);
+            var sizeY = Math.Max(1, maxY - minY + 1);
+            cell.BoundingBox = new Rect2I(new Vector2I(minX, minY), new Vector2I(sizeX, sizeY));
+        }
+    }
+
+    private static void ExpandBounds(Vector2 point, ref int minX, ref int minY, ref int maxX, ref int maxY) {
+        minX = Math.Min(minX, Mathf.FloorToInt(point.X));
+        minY = Math.Min(minY, Mathf.FloorToInt(point.Y));
+        maxX = Math.Max(maxX, Mathf.CeilToInt(point.X));
+        maxY = Math.Max(maxY, Mathf.CeilToInt(point.Y));
     }
 
     /// Renders the Voronoi edges and seeds into an Image for quick inspection.
@@ -440,6 +520,9 @@ public class VoronoiCell {
 
     /// Indices into the VoronoiEdge list.
     public readonly List<int> EdgeIndices = new();
+
+    /// Axis-aligned bounding box fully covering the cell; populated during diagram construction.
+    public Rect2I BoundingBox { get; internal set; }
 
     public VoronoiCell(int seedIndex, Vector2 seed) {
         SeedIndex = seedIndex;
