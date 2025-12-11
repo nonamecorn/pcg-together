@@ -27,15 +27,10 @@ public partial class Voronoi : Node {
     [Export] public int StrokeWidth = 1;
     /// Generated Voronoi graph data.
     public VoronoiDiagram? Diagram { get; private set; }
-    /// Raw debug image containing edges and seed dots.
-    public Image? DebugImage { get; private set; }
-    /// Texture created from the debug image for UI display.
-    public ImageTexture? DebugTexture { get; private set; }
 
     public override void _Ready() {
         if (GenerateOnReady) {
             Generate();
-            BuildDebugOutputs();
         }
     }
 
@@ -55,20 +50,6 @@ public partial class Voronoi : Node {
         }
 
         Diagram = VoronoiDiagram.Build(shiftedSamples, CanvasSize);
-    }
-
-    /// Generates debug image/texture from the current diagram and assigns it to a child Sprite2D (if present).
-    public void BuildDebugOutputs() {
-        if (Diagram == null) {
-            return;
-        }
-
-        DebugImage = Diagram.DrawDebugImage(CanvasSize, EdgeColor, SeedColor, StrokeWidth);
-        DebugTexture = ImageTexture.CreateFromImage(DebugImage);
-        var debugSprite = GetNodeOrNull<Sprite2D>("Sprite2D");
-        if (debugSprite != null) {
-            debugSprite.Texture = DebugTexture;
-        }
     }
 }
 

@@ -135,6 +135,78 @@ public class VoronoiTraversalGraph {
         _connections = connections;
         _connectedPairs = connectedPairs;
     }
+
+    /// Draws the base Voronoi debug image and overlays traversal connections with blue strokes and dots.
+    public Image DrawDebugImageWithConnections(Color? edgeColor = null, Color? seedColor = null, Color? connectionColor = null,
+                                               int strokeWidth = 1, int connectionStroke = 2, int connectionPointRadius = 3) {
+        edgeColor ??= new Color(0.9f, 0.9f, 0.9f);
+        seedColor ??= new Color(0.9f, 0.25f, 0.25f);
+        connectionColor ??= new Color(0.2f, 0.65f, 1f);
+
+        var image = Diagram.DrawDebugImage(Diagram.Size, edgeColor.Value, seedColor.Value, strokeWidth);
+
+        foreach (var connection in _connections) {
+            var edge = Diagram.Edges[connection.EdgeIndex];
+            DrawLine(image, edge.From, edge.To, connectionColor.Value, connectionStroke);
+            DrawCircle(image, connection.PointOnEdge, connectionPointRadius, connectionColor.Value);
+        }
+
+        return image;
+    }
+
+    private static void DrawLine(Image image, Vector2 start, Vector2 end, Color color, int thickness) {
+        var a = new Vector2I(Mathf.RoundToInt(start.X), Mathf.RoundToInt(start.Y));
+        var b = new Vector2I(Mathf.RoundToInt(end.X), Mathf.RoundToInt(end.Y));
+
+        var dx = Mathf.Abs(b.X - a.X);
+        var sx = a.X < b.X ? 1 : -1;
+        var dy = -Mathf.Abs(b.Y - a.Y);
+        var sy = a.Y < b.Y ? 1 : -1;
+        var err = dx + dy;
+
+        var x = a.X;
+        var y = a.Y;
+        while (true) {
+            SetPixelSafe(image, x, y, color, thickness);
+            if (x == b.X && y == b.Y) {
+                break;
+            }
+
+            var e2 = 2 * err;
+            if (e2 >= dy) {
+                err += dy;
+                x += sx;
+            }
+
+            if (e2 <= dx) {
+                err += dx;
+                y += sy;
+            }
+        }
+    }
+
+    private static void DrawCircle(Image image, Vector2 center, int radius, Color color) {
+        var c = new Vector2I(Mathf.RoundToInt(center.X), Mathf.RoundToInt(center.Y));
+        for (var y = -radius; y <= radius; y++) {
+            for (var x = -radius; x <= radius; x++) {
+                if (x * x + y * y <= radius * radius) {
+                    SetPixelSafe(image, c.X + x, c.Y + y, color, 1);
+                }
+            }
+        }
+    }
+
+    private static void SetPixelSafe(Image image, int x, int y, Color color, int thickness) {
+        for (var dy = -thickness + 1; dy < thickness; dy++) {
+            for (var dx = -thickness + 1; dx < thickness; dx++) {
+                var px = x + dx;
+                var py = y + dy;
+                if (px >= 0 && py >= 0 && px < image.GetWidth() && py < image.GetHeight()) {
+                    image.SetPixel(px, py, color);
+                }
+            }
+        }
+    }
 }
 
 /// A single connection along a Voronoi edge, including the sampled point.

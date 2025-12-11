@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://dqag6cbif8iuu"]
+
+[ext_resource type="Script" uid="uid://i5ci14maxqrk" path="res://test/VoronoiDebugView.cs" id="1_kswa5"]
+[ext_resource type="Script" uid="uid://x3vk4a5aywjf" path="res://lvls/gen/Voronoi.cs" id="2_no5n2"]
+
+[sub_resource type="ImageTexture" id="ImageTexture_h2gic"]
+
+[node name="VoronoiView" type="Node2D"]
+script = ExtResource("1_kswa5")
+VoronoiNodePath = NodePath("Voronoi")
+SpriteNodePath = NodePath("Sprite2D")
+Mode = 1
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = SubResource("ImageTexture_h2gic")
+offset = Vector2(256, 256)
+
+[node name="Voronoi" type="Node2D" parent="."]
+script = ExtResource("2_no5n2")
