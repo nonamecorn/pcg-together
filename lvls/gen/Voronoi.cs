@@ -35,10 +35,11 @@ public partial class Voronoi : Node {
     public override void _Ready() {
         if (GenerateOnReady) {
             Generate();
+            BuildDebugOutputs();
         }
     }
 
-    /// Runs Poisson sampling, builds Voronoi topology, and renders the debug image.
+    /// Runs Poisson sampling and builds the Voronoi topology (no drawing).
     public void Generate() {
         var padding = Mathf.Max(0, SeedPadding);
         var innerSize = new Vector2I(
@@ -54,11 +55,19 @@ public partial class Voronoi : Node {
         }
 
         Diagram = VoronoiDiagram.Build(shiftedSamples, CanvasSize);
+    }
+
+    /// Generates debug image/texture from the current diagram and assigns it to a child Sprite2D (if present).
+    public void BuildDebugOutputs() {
+        if (Diagram == null) {
+            return;
+        }
+
         DebugImage = Diagram.DrawDebugImage(CanvasSize, EdgeColor, SeedColor, StrokeWidth);
         DebugTexture = ImageTexture.CreateFromImage(DebugImage);
-        var DebugSprite = GetNode<Sprite2D>("Sprite2D");
-        if (DebugSprite != null) {
-            DebugSprite.Texture = DebugTexture;
+        var debugSprite = GetNodeOrNull<Sprite2D>("Sprite2D");
+        if (debugSprite != null) {
+            debugSprite.Texture = DebugTexture;
         }
     }
 }
@@ -73,12 +82,15 @@ public class VoronoiDiagram {
     public readonly List<VoronoiCell> Cells;
     /// Undirected Voronoi edges between seeds.
     public readonly List<VoronoiEdge> Edges;
+    /// Delaunay triangles backing the diagram.
+    public readonly List<DelaunayTriangle> Triangles;
 
-    private VoronoiDiagram(Vector2I size, List<Vector2> seeds, List<VoronoiCell> cells, List<VoronoiEdge> edges) {
+    private VoronoiDiagram(Vector2I size, List<Vector2> seeds, List<VoronoiCell> cells, List<VoronoiEdge> edges, List<DelaunayTriangle> triangles) {
         Size = size;
         Seeds = seeds;
         Cells = cells;
         Edges = edges;
+        Triangles = triangles;
     }
 
     /// Builds a Voronoi diagram from the given seeds, clipped to the provided size.
@@ -89,7 +101,7 @@ public class VoronoiDiagram {
         }
 
         if (seeds.Count < 2) {
-            return new VoronoiDiagram(size, seeds, cells, new List<VoronoiEdge>());
+            return new VoronoiDiagram(size, seeds, cells, new List<VoronoiEdge>(), new List<DelaunayTriangle>());
         }
 
         if (seeds.Count == 2) {
@@ -112,29 +124,36 @@ public class VoronoiDiagram {
             var edgesList = new List<VoronoiEdge> { edge };
             cells[0].EdgeIndices.Add(0);
             cells[1].EdgeIndices.Add(0);
-            return new VoronoiDiagram(size, seeds, cells, edgesList);
+            return new VoronoiDiagram(size, seeds, cells, edgesList, new List<DelaunayTriangle>());
         }
 
-        var edges = BuildEdgesFromDelaunay(seeds, size, cells);
-        return new VoronoiDiagram(size, seeds, cells, edges);
+        var triangles = BuildDelaunayTriangles(seeds);
+        var edges = BuildEdgesFromDelaunay(seeds, size, cells, triangles);
+        return new VoronoiDiagram(size, seeds, cells, edges, triangles);
     }
 
-    private static List<VoronoiEdge> BuildEdgesFromDelaunay(List<Vector2> seeds, Vector2I size, List<VoronoiCell> cells) {
+    private static List<DelaunayTriangle> BuildDelaunayTriangles(List<Vector2> seeds) {
         var points = seeds.ToArray();
         var triangulation = Geometry2D.TriangulateDelaunay(points);
         var triangleCount = triangulation.Length / 3;
-        if (triangleCount == 0) {
-            return new List<VoronoiEdge>();
-        }
-
-        var triangles = new List<Triangle>(triangleCount);
+        var triangles = new List<DelaunayTriangle>(triangleCount);
         for (var i = 0; i < triangulation.Length; i += 3) {
             var a = triangulation[i];
             var b = triangulation[i + 1];
             var c = triangulation[i + 2];
             var circum = ComputeCircumcenter(points[a], points[b], points[c]);
-            triangles.Add(new Triangle(a, b, c, circum));
+            triangles.Add(new DelaunayTriangle(a, b, c, circum));
         }
+
+        return triangles;
+    }
+
+    private static List<VoronoiEdge> BuildEdgesFromDelaunay(List<Vector2> seeds, Vector2I size, List<VoronoiCell> cells, List<DelaunayTriangle> triangles) {
+        if (triangles.Count == 0) {
+            return new List<VoronoiEdge>();
+        }
+
+        var points = seeds;
 
         var edgeMap = new Dictionary<EdgeKey, EdgeData>();
         for (var t = 0; t < triangles.Count; t++) {
@@ -361,11 +380,11 @@ public class VoronoiDiagram {
         return new Vector2(ux, uy);
     }
 
-    private readonly struct Triangle {
+    public readonly struct DelaunayTriangle {
         public readonly int[] Vertices;
         public readonly Vector2 Circumcenter;
 
-        public Triangle(int a, int b, int c, Vector2 circumcenter) {
+        public DelaunayTriangle(int a, int b, int c, Vector2 circumcenter) {
             Vertices = new[] { a, b, c };
             Circumcenter = circumcenter;
         }
