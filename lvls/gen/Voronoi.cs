@@ -101,7 +101,7 @@ public class VoronoiDiagram {
             var bounds = new Rect2(Vector2.Zero, size);
             var from = mid - perp * 10000f;
             var to = mid + perp * 10000f;
-            ClipSegmentToBounds(ref from, ref to, bounds);
+            TryClipSegmentToBounds(ref from, ref to, bounds);
             var edge = new VoronoiEdge {
                 From = from,
                 To = to,
@@ -168,8 +168,7 @@ public class VoronoiDiagram {
             if (data.SecondTriangle >= 0) {
                 from = triangles[data.FirstTriangle].Circumcenter;
                 to = triangles[data.SecondTriangle].Circumcenter;
-            }
-            else {
+            } else {
                 from = triangles[data.FirstTriangle].Circumcenter;
                 var dir = ComputePerpendicularDirection(points[key.A], points[key.B]);
                 var opposite = points[data.OppositeA];
@@ -177,15 +176,24 @@ public class VoronoiDiagram {
                     dir = -dir;
                 }
 
-                if (!TryRayBoundsIntersection(from, dir, bounds, out to)) {
-                    // Fallback: clamp both ends into the bounds so the debug image at least stays coherent.
-                    to = from + dir * Mathf.Max(size.X, size.Y);
-                    ClipPointToBounds(ref to, bounds);
+                var extent = Mathf.Max(size.X, size.Y) * 2f;
+                var lineStart = from;
+                var lineEnd = from + dir * extent;
+                if (!TryClipSegmentToBounds(ref lineStart, ref lineEnd, bounds)) {
+                    continue;
                 }
+
+                from = lineStart;
+                to = lineEnd;
             }
 
-            ClipPointToBounds(ref from, bounds);
-            ClipPointToBounds(ref to, bounds);
+            if (!TryClipSegmentToBounds(ref from, ref to, bounds)) {
+                continue;
+            }
+
+            if (from.DistanceSquaredTo(to) < 0.25f) {
+                continue;
+            }
 
             var edge = new VoronoiEdge {
                 From = from,
@@ -274,63 +282,6 @@ public class VoronoiDiagram {
         }
     }
 
-    private static bool TryRayBoundsIntersection(Vector2 origin, Vector2 direction, Rect2 bounds, out Vector2 hit) {
-        hit = origin;
-        var best = float.PositiveInfinity;
-        var hasHit = false;
-
-        var minX = bounds.Position.X;
-        var maxX = bounds.Position.X + bounds.Size.X;
-        var minY = bounds.Position.Y;
-        var maxY = bounds.Position.Y + bounds.Size.Y;
-
-        if (!Mathf.IsZeroApprox(direction.X)) {
-            var t = (minX - origin.X) / direction.X;
-            if (t > 0) {
-                var y = origin.Y + t * direction.Y;
-                if (y >= minY && y <= maxY && t < best) {
-                    best = t;
-                    hit = new Vector2(minX, y);
-                    hasHit = true;
-                }
-            }
-
-            t = (maxX - origin.X) / direction.X;
-            if (t > 0) {
-                var y = origin.Y + t * direction.Y;
-                if (y >= minY && y <= maxY && t < best) {
-                    best = t;
-                    hit = new Vector2(maxX, y);
-                    hasHit = true;
-                }
-            }
-        }
-
-        if (!Mathf.IsZeroApprox(direction.Y)) {
-            var t = (minY - origin.Y) / direction.Y;
-            if (t > 0) {
-                var x = origin.X + t * direction.X;
-                if (x >= minX && x <= maxX && t < best) {
-                    best = t;
-                    hit = new Vector2(x, minY);
-                    hasHit = true;
-                }
-            }
-
-            t = (maxY - origin.Y) / direction.Y;
-            if (t > 0) {
-                var x = origin.X + t * direction.X;
-                if (x >= minX && x <= maxX && t < best) {
-                    best = t;
-                    hit = new Vector2(x, maxY);
-                    hasHit = true;
-                }
-            }
-        }
-
-        return hasHit;
-    }
-
     private static void ClipPointToBounds(ref Vector2 point, Rect2 bounds) {
         var maxX = bounds.Position.X + bounds.Size.X - 1f;
         var maxY = bounds.Position.Y + bounds.Size.Y - 1f;
@@ -339,9 +290,52 @@ public class VoronoiDiagram {
         point = new Vector2(x, y);
     }
 
-    private static void ClipSegmentToBounds(ref Vector2 from, ref Vector2 to, Rect2 bounds) {
-        ClipPointToBounds(ref from, bounds);
-        ClipPointToBounds(ref to, bounds);
+    private static bool TryClipSegmentToBounds(ref Vector2 p0, ref Vector2 p1, Rect2 bounds) {
+        var x0 = p0.X;
+        var y0 = p0.Y;
+        var x1 = p1.X;
+        var y1 = p1.Y;
+        var dx = x1 - x0;
+        var dy = y1 - y0;
+
+        var t0 = 0f;
+        var t1 = 1f;
+
+        bool Clip(float p, float q) {
+            if (Mathf.IsZeroApprox(p)) {
+                return q >= 0;
+            }
+
+            var r = q / p;
+            if (p < 0) {
+                if (r > t1) return false;
+                if (r > t0) t0 = r;
+            }
+            else {
+                if (r < t0) return false;
+                if (r < t1) t1 = r;
+            }
+
+            return true;
+        }
+
+        var xmin = bounds.Position.X;
+        var xmax = bounds.Position.X + bounds.Size.X;
+        var ymin = bounds.Position.Y;
+        var ymax = bounds.Position.Y + bounds.Size.Y;
+
+        if (!Clip(-dx, x0 - xmin)) return false;
+        if (!Clip( dx, xmax - x0)) return false;
+        if (!Clip(-dy, y0 - ymin)) return false;
+        if (!Clip( dy, ymax - y0)) return false;
+
+        var nx0 = x0 + t0 * dx;
+        var ny0 = y0 + t0 * dy;
+        var nx1 = x0 + t1 * dx;
+        var ny1 = y0 + t1 * dy;
+        p0 = new Vector2(nx0, ny0);
+        p1 = new Vector2(nx1, ny1);
+        return true;
     }
 
     private static Vector2 ComputePerpendicularDirection(Vector2 a, Vector2 b) {
