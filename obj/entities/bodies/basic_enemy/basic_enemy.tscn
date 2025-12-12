@@ -1,17 +1,43 @@
-[gd_scene load_steps=15 format=3 uid="uid://b1d6mlonb7nwc"]
+[gd_scene load_steps=26 format=3 uid="uid://b1d6mlonb7nwc"]
 
 [ext_resource type="PackedScene" uid="uid://vxlnckbeqm4y" path="res://components/mother_body.tscn" id="1_e4kk1"]
 [ext_resource type="Script" uid="uid://kmjfkbt1bg77" path="res://obj/entities/bodies/basic_enemy/basic_enemy.gd" id="2_e0cwr"]
 [ext_resource type="Script" uid="uid://dbteipskyllwk" path="res://obj/entities/bodies/basic_enemy/patrol_state.gd" id="2_ppyn0"]
+[ext_resource type="Texture2D" uid="uid://c3sof35hidn46" path="res://img/bodies/enemy/B_lag.png" id="3_dctwk"]
 [ext_resource type="Script" uid="uid://bpj2cni183yq0" path="res://obj/entities/bodies/basic_enemy/turret_state.gd" id="3_e0cwr"]
 [ext_resource type="Script" uid="uid://m4xjmgw4e48a" path="res://obj/entities/bodies/basic_enemy/enemy_fsm.gd" id="3_javgc"]
+[ext_resource type="Texture2D" uid="uid://bmyvo56bda7f4" path="res://img/bodies/enemy/B_lag_n.png" id="4_u5u4m"]
 [ext_resource type="Script" uid="uid://ifbnr5f5kyqu" path="res://obj/entities/bodies/basic_enemy/enemydead_state.gd" id="4_uwxms"]
 [ext_resource type="Script" uid="uid://cy7uuvev4cuda" path="res://obj/entities/bodies/basic_enemy/perceptor.gd" id="5_cgfm0"]
 [ext_resource type="Script" uid="uid://xmyx6gj5p53v" path="res://obj/entities/bodies/basic_enemy/investigate.gd" id="5_ix6af"]
+[ext_resource type="Texture2D" uid="uid://djxca13n61rk7" path="res://img/bodies/enemy/bobot.png" id="5_rn63k"]
+[ext_resource type="Texture2D" uid="uid://yblyc232n6nm" path="res://img/bodies/enemy/bobot_n.png" id="6_30gci"]
 [ext_resource type="Script" uid="uid://bsxhiboftuo1f" path="res://obj/entities/bodies/basic_enemy/panic_state.gd" id="6_pwmcd"]
 [ext_resource type="Script" uid="uid://d2eil3heten32" path="res://obj/entities/bodies/basic_enemy/surround_state.gd" id="7_u1xw8"]
 [ext_resource type="Script" uid="uid://xxrswto60gno" path="res://obj/entities/bodies/basic_enemy/retreat_state.gd" id="8_04aog"]
-[ext_resource type="PackedScene" uid="uid://4nnhn6wjky8e" path="res://obj/guns/br_180.tscn" id="11_k1m5i"]
+[ext_resource type="PackedScene" uid="uid://busv75m2it7t8" path="res://obj/guns/bobogun.tscn" id="16_dctwk"]
+[ext_resource type="Texture2D" uid="uid://bee4og2kfd551" path="res://img/bodies/enemy/F_lag.png" id="17_ehey7"]
+[ext_resource type="Texture2D" uid="uid://c5wdhan472mjm" path="res://img/bodies/enemy/F_lag_n.png" id="18_qi43h"]
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_v0268"]
+diffuse_texture = ExtResource("5_rn63k")
+normal_texture = ExtResource("6_30gci")
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_f1qsg"]
+diffuse_texture = ExtResource("3_dctwk")
+normal_texture = ExtResource("4_u5u4m")
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_swnov"]
+diffuse_texture = ExtResource("3_dctwk")
+normal_texture = ExtResource("4_u5u4m")
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_3smyj"]
+diffuse_texture = ExtResource("17_ehey7")
+normal_texture = ExtResource("18_qi43h")
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_ijrr7"]
+diffuse_texture = ExtResource("17_ehey7")
+normal_texture = ExtResource("18_qi43h")
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_cgfm0"]
 radius = 104.0769
@@ -23,6 +49,30 @@ script = ExtResource("2_e0cwr")
 nav_agent = NodePath("NavigationAgent2D")
 group = "Raiders"
 
+[node name="BodySprite" parent="." index="1"]
+texture = SubResource("CanvasTexture_v0268")
+flip_h = true
+
+[node name="BLLeg" type="Sprite2D" parent="BodySprite" index="0"]
+show_behind_parent = true
+position = Vector2(-10, 4)
+texture = SubResource("CanvasTexture_f1qsg")
+
+[node name="BRLeg" type="Sprite2D" parent="BodySprite" index="1"]
+show_behind_parent = true
+position = Vector2(11, 5)
+texture = SubResource("CanvasTexture_swnov")
+flip_h = true
+
+[node name="FRLeg" type="Sprite2D" parent="BodySprite" index="2"]
+position = Vector2(13, 9)
+texture = SubResource("CanvasTexture_3smyj")
+flip_h = true
+
+[node name="FLLeg" type="Sprite2D" parent="BodySprite" index="3"]
+position = Vector2(-13, 9)
+texture = SubResource("CanvasTexture_ijrr7")
+
 [node name="FSM" parent="." index="3" node_paths=PackedStringArray("label", "initial_state")]
 script = ExtResource("3_javgc")
 label = NodePath("../Label")
@@ -32,7 +82,7 @@ initial_state = NodePath("Turret")
 script = ExtResource("4_uwxms")
 perceptor = NodePath("../../Perceptor")
 ray = NodePath("../../LOS_ray")
-gun = NodePath("../../Hand/Handmarker/BR180")
+gun = NodePath("../../Hand/Handmarker/bobogun")
 animation = NodePath("../../AnimationPlayer")
 handmarker = NodePath("../../Hand/Handmarker")
 
@@ -134,7 +184,11 @@ offset_bottom = -33.0
 position = Vector2(0, -22)
 collision_mask = 10
 
-[node name="BR180" parent="Hand/Handmarker" index="0" instance=ExtResource("11_k1m5i")]
+[node name="Hand" parent="." index="10"]
+position = Vector2(0, -7)
+
+[node name="bobogun" parent="Hand/Handmarker" index="0" instance=ExtResource("16_dctwk")]
+position = Vector2(-6, 0)
 
 [connection signal="timeout" from="FSM/Surround/changepath" to="FSM/Surround" method="_on_changepath_timeout"]
 [connection signal="timeout" from="FSM/Surround/attack" to="FSM/Surround" method="_on_attack_timeout"]

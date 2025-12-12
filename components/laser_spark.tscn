@@ -1,0 +1,43 @@
+[gd_scene load_steps=8 format=3 uid="uid://df3smo3qhff6f"]
+
+[ext_resource type="PackedScene" uid="uid://devakjkkj82x1" path="res://components/spark.tscn" id="1_mcl45"]
+[ext_resource type="Texture2D" uid="uid://dp4c4qru4f87w" path="res://img/misc/laser_spark.png" id="2_8q1j3"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gyo1t"]
+atlas = ExtResource("2_8q1j3")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2l0bs"]
+atlas = ExtResource("2_8q1j3")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nqofr"]
+atlas = ExtResource("2_8q1j3")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nbc0i"]
+atlas = ExtResource("2_8q1j3")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_6ec6r"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gyo1t")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2l0bs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nqofr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nbc0i")
+}],
+"loop": false,
+"name": &"default",
+"speed": 20.0
+}]
+
+[node name="Laser_spark" instance=ExtResource("1_mcl45")]
+sprite_frames = SubResource("SpriteFrames_6ec6r")
