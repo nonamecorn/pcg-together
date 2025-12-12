@@ -1,7 +1,13 @@
-[gd_resource type="TileSet" load_steps=53 format=3 uid="uid://bkfjviijjkscm"]
+[gd_resource type="TileSet" load_steps=55 format=3 uid="uid://bkfjviijjkscm"]
 
+[ext_resource type="Texture2D" uid="uid://ci6ecfwr35wp" path="res://img/levels/cell_center.png" id="1_4jpfb"]
 [ext_resource type="Texture2D" uid="uid://du8y6swe5bibq" path="res://img/levels/Floor.png" id="1_xtm4e"]
 [ext_resource type="Texture2D" uid="uid://c6h1y5lbyaw02" path="res://img/levels/walls.png" id="2_4jpfb"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_71yow"]
+texture = ExtResource("1_4jpfb")
+texture_region_size = Vector2i(32, 32)
+0:0/0 = 0
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_6nefj"]
 vertices = PackedVector2Array(8, 8, -8, 8, -8, -8, 8, -8)
@@ -961,3 +967,4 @@ terrain_set_0/terrain_1/color = Color(0.5, 0.4375, 0.25, 1)
 navigation_layer_0/layers = 1
 sources/1 = SubResource("TileSetAtlasSource_x7hgi")
 sources/2 = SubResource("TileSetAtlasSource_l6nb5")
+sources/0 = SubResource("TileSetAtlasSource_71yow")

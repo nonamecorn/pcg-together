@@ -121,6 +121,14 @@ scope = 50.0
 [node name="Inventory" parent="CanvasLayer" index="0" instance=ExtResource("7_bmp72")]
 visible = false
 
+[node name="hp" type="Label" parent="CanvasLayer" index="1"]
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="score" type="Label" parent="CanvasLayer" index="2"]
+offset_right = 40.0
+offset_bottom = 23.0
+
 [node name="Hand" parent="." index="8"]
 position = Vector2(-2, -16)
 script = ExtResource("5_kjt16")

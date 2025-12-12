@@ -106,7 +106,7 @@ public partial class Voronoi : Node {
     /// Finds the nearest seed index to a point by brute force.
     /// <param name="point">Point in canvas space.</param>
     /// <returns>Index of closest seed.</returns>
-    private int FindNearestSeedIndex(Vector2 point) {
+    public int FindNearestSeedIndex(Vector2 point) {
         var seeds = Diagram!.Seeds;
         var bestIndex = 0;
         var bestDist = point.DistanceSquaredTo(seeds[0]);
