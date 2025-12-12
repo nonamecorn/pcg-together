@@ -17,8 +17,6 @@ public readonly struct CaConfig {
     public int Iterations { get; }
     /// Initial probability that an unmasked cell starts as a wall.
     public float InitialWallProbability { get; }
-    /// Depth (in cells) to carve from each connector into the mask to keep portals open.
-    public int ConnectorDepth { get; }
 
     /// Creates a CA configuration with clamped/normalized parameters.
     /// <param name="kernelSize">Neighbourhood size (square, odd, >= 3).</param>
@@ -26,15 +24,13 @@ public readonly struct CaConfig {
     /// <param name="survivalLimit">Neighbours required for a wall to remain.</param>
     /// <param name="iterations">Number of simulation steps.</param>
     /// <param name="initialWallProbability">Chance (0..1) for an unmasked cell to start as wall.</param>
-    /// <param name="connectorDepth">Cells to carve inward from each connector every step.</param>
-    public CaConfig(int kernelSize, int birthLimit, int survivalLimit, int iterations, float initialWallProbability = 0.45f, int connectorDepth = 2) {
+    public CaConfig(int kernelSize, int birthLimit, int survivalLimit, int iterations, float initialWallProbability = 0.45f) {
         KernelSize = MakeOdd(Math.Max(3, kernelSize));
         var maxNeighbours = KernelSize * KernelSize - 1;
         BirthLimit = ClampNeighbour(birthLimit, maxNeighbours);
         SurvivalLimit = ClampNeighbour(survivalLimit, maxNeighbours);
         Iterations = Math.Max(0, iterations);
         InitialWallProbability = Mathf.Clamp(initialWallProbability, 0f, 1f);
-        ConnectorDepth = Math.Max(0, connectorDepth);
     }
 
     private static int MakeOdd(int value) {
@@ -87,7 +83,7 @@ public static class CellularAutomata {
         var current = new byte[width, height];
         var next = new byte[width, height];
         var offsets = BuildNeighbourOffsets(config.KernelSize);
-        var carveMask = BuildConnectorCarveMask(task.Connectors, mask, config.ConnectorDepth);
+        var carveMask = BuildConnectorCarveMask(task, mask);
 
         var rng = new DeterministicRng(task.CaSeed);
 
@@ -186,33 +182,28 @@ public static class CellularAutomata {
         return offsets;
     }
 
-    private static byte[,] BuildConnectorCarveMask(IReadOnlyList<CellConnector> connectors, byte[,] mask, int depth) {
+    private static byte[,] BuildConnectorCarveMask(CellTask task, byte[,] mask) {
         var width = mask.GetLength(0);
         var height = mask.GetLength(1);
         var carve = new byte[width, height];
-        if (depth <= 0 || connectors.Count == 0) {
+        var connectors = task.Connectors;
+        if (connectors.Count == 0) {
             return carve;
         }
 
+        var seedLocal = new Vector2I(
+            Mathf.Clamp(Mathf.FloorToInt(task.SeedPosition.X) - task.Region.Position.X, 0, width - 1),
+            Mathf.Clamp(Mathf.FloorToInt(task.SeedPosition.Y) - task.Region.Position.Y, 0, height - 1)
+        );
+
         foreach (var connector in connectors) {
-            CarveLine(connector.LocalPoint, connector.DirectionIntoCell, depth, mask, carve);
+            CarveLine(connector.LocalPoint, seedLocal, mask, carve);
         }
 
         return carve;
     }
 
-    private static void CarveLine(Vector2I start, Vector2 direction, int depth, byte[,] mask, byte[,] carve) {
-        var dirNorm = direction;
-        if (dirNorm.LengthSquared() < 1e-6f) {
-            dirNorm = Vector2.Right;
-        }
-        dirNorm = dirNorm.Normalized();
-
-        var endOffset = new Vector2I(
-            Mathf.FloorToInt(dirNorm.X * depth),
-            Mathf.FloorToInt(dirNorm.Y * depth)
-        );
-        var end = start + endOffset;
+    private static void CarveLine(Vector2I start, Vector2I end, byte[,] mask, byte[,] carve) {
         foreach (var cell in RasterLine(start, end)) {
             if (cell.X < 0 || cell.Y < 0 || cell.X >= carve.GetLength(0) || cell.Y >= carve.GetLength(1)) {
                 continue;

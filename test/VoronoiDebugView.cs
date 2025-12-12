@@ -15,10 +15,10 @@ public partial class VoronoiDebugView : Node2D {
     [Export] public NodePath SpriteNodePath;
     [Export(PropertyHint.Enum, "Voronoi,Traversal")]
     public DebugMode Mode = DebugMode.Voronoi;
-    [Export] public bool GenerateOnReady = true;
-    [Export] public float NeighborCoverage = 0.75f;
+    [Export] public bool GenerateOnReady = false;
+    [Export] public float NeighborCoverage = 0.5f;
     [Export] public int TraversalSeed = 0;
-    [Export(PropertyHint.Range, "0,1,0.01")] public float ConnectionDistributionScaling = 1f;
+    [Export(PropertyHint.Range, "0,1,0.01")] public float ConnectionDistributionScaling = 0.75f;
     [Export] public int ConnectionStroke = 2;
     [Export] public int ConnectionPointRadius = 3;
 
@@ -41,15 +41,15 @@ public partial class VoronoiDebugView : Node2D {
     }
 
     /// Regenerates the Voronoi diagram and (optionally) traversal graph, then rebuilds the texture.
-    public void Refresh() {
+    public void Refresh(VoronoiTraversalGraph traversal = null) {
         if (_voronoi == null) {
             return;
         }
 
-        var traversalSeedOverride = TraversalSeed == 0 ? (int?)null : TraversalSeed;
-        var seeds = new VoronoiSeedChain(_voronoi.Seed, traversalSeedOverride: traversalSeedOverride);
+        // var traversalSeedOverride = TraversalSeed == 0 ? (int?)null : TraversalSeed;
+        // var seeds = new VoronoiSeedChain(_voronoi.Seed, traversalSeedOverride: traversalSeedOverride);
 
-        _voronoi.Generate(seeds);
+        // _voronoi.Generate(seeds);
         if (_voronoi.Diagram == null) {
             return;
         }
@@ -63,7 +63,8 @@ public partial class VoronoiDebugView : Node2D {
                 );
                 break;
             case DebugMode.Traversal:
-                _traversal = VoronoiTraversal.Build(_voronoi.Diagram, NeighborCoverage, seeds.TraversalSeed, true, ConnectionDistributionScaling);
+                // _traversal = VoronoiTraversal.Build(_voronoi.Diagram, NeighborCoverage, seeds.TraversalSeed, true, ConnectionDistributionScaling);
+                _traversal = traversal;
                 _texture = ImageTexture.CreateFromImage(
                     _traversal.DrawDebugImageWithConnections(_voronoi.EdgeColor, _voronoi.SeedColor, null,
                         _voronoi.StrokeWidth, ConnectionStroke, ConnectionPointRadius)
