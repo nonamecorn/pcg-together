@@ -40,7 +40,7 @@ public partial class Voronoi : Node {
     /// Runs Poisson sampling and builds the Voronoi topology (no drawing).
     /// <returns>Generated diagram assigned to Diagram.</returns>
     public void Generate() {
-        var seeds = new VoronoiSeedChain(Seed);
+        var seeds = new VoronoiSeedChain(SeedUtils.RandomizeIfZero(Seed));
         Generate(seeds);
     }
 

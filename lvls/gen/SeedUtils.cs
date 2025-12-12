@@ -11,6 +11,18 @@ internal static class SeedUtils {
         return seed == 0 ? DefaultSeed : seed;
     }
 
+    /// Randomizes a seed based on time when zero; otherwise returns the original seed.
+    /// <param name="seed">Input seed that may be zero.</param>
+    /// <returns>Non-zero seed, time-based when input was zero.</returns>
+    public static int RandomizeIfZero(int seed) {
+        if (seed != 0) {
+            return seed;
+        }
+
+        var timeSeed = (int)(DateTime.UtcNow.Ticks & 0x7FFFFFFF);
+        return timeSeed != 0 ? timeSeed : DefaultSeed;
+    }
+
     /// Derives a new deterministic seed from a base seed and a salt.
     public static int DeriveSeed(int baseSeed, int salt) {
         var x = (uint)NormalizeSeed(baseSeed);
@@ -38,7 +50,8 @@ internal struct DeterministicRng {
     private ulong _state;
 
     public DeterministicRng(int seed) {
-        _state = SeedUtils.ScrambleState(seed);
+        var normalized = SeedUtils.RandomizeIfZero(seed);
+        _state = SeedUtils.ScrambleState(normalized);
     }
 
     /// Advances RNG state and returns a 64-bit sample.
@@ -79,7 +92,7 @@ public readonly struct VoronoiSeedChain {
     public int TraversalSeed { get; }
 
     public VoronoiSeedChain(int baseSeed, int? poissonSeedOverride = null, int? traversalSeedOverride = null) {
-        BaseSeed = SeedUtils.NormalizeSeed(baseSeed);
+        BaseSeed = SeedUtils.RandomizeIfZero(baseSeed);
         PoissonSeed = SeedUtils.NormalizeSeed(poissonSeedOverride ?? SeedUtils.DeriveSeed(BaseSeed, PoissonSalt));
         TraversalSeed = SeedUtils.NormalizeSeed(traversalSeedOverride ?? SeedUtils.DeriveSeed(BaseSeed, TraversalSalt));
     }
