@@ -33,10 +33,17 @@ public readonly struct CaConfig {
         InitialWallProbability = Mathf.Clamp(initialWallProbability, 0f, 1f);
     }
 
+    /// Ensures the provided value is odd.
+    /// <param name="value">Input value to normalize.</param>
+    /// <returns>Odd integer derived from the input.</returns>
     private static int MakeOdd(int value) {
         return (value & 1) == 1 ? value : value + 1;
     }
 
+    /// Clamps neighbour thresholds into a valid range.
+    /// <param name="value">Requested neighbour threshold.</param>
+    /// <param name="max">Maximum allowed neighbour count.</param>
+    /// <returns>Clamped neighbour threshold.</returns>
     private static int ClampNeighbour(int value, int max) {
         return Math.Max(0, Math.Min(max, value));
     }
@@ -111,6 +118,14 @@ public static class CellularAutomata {
         return new CaResult(task.CellIndex, task.Region, current, task.Connectors);
     }
 
+    /// Runs one CA iteration.
+    /// <param name="mask">Cell mask; 0 treated as walls.</param>
+    /// <param name="carveMask">Precarved floor mask.</param>
+    /// <param name="src">Current state grid.</param>
+    /// <param name="dst">Destination grid for next state.</param>
+    /// <param name="offsets">Neighbour offsets.</param>
+    /// <param name="birthLimit">Birth threshold.</param>
+    /// <param name="survivalLimit">Survival threshold.</param>
     private static void Step(byte[,] mask, byte[,] carveMask, byte[,] src, byte[,] dst, List<Vector2I> offsets, int birthLimit, int survivalLimit) {
         var width = mask.GetLength(0);
         var height = mask.GetLength(1);
@@ -138,6 +153,14 @@ public static class CellularAutomata {
         }
     }
 
+    /// Counts neighbouring walls around a cell.
+    /// <param name="mask">Cell mask; 0 treated as walls.</param>
+    /// <param name="carveMask">Carved floors to ignore as walls.</param>
+    /// <param name="grid">Current CA grid.</param>
+    /// <param name="x">Cell X coordinate.</param>
+    /// <param name="y">Cell Y coordinate.</param>
+    /// <param name="offsets">Neighbour offsets.</param>
+    /// <returns>Number of neighbouring walls.</returns>
     private static int CountNeighbours(byte[,] mask, byte[,] carveMask, byte[,] grid, int x, int y, List<Vector2I> offsets) {
         var width = mask.GetLength(0);
         var height = mask.GetLength(1);
@@ -166,6 +189,9 @@ public static class CellularAutomata {
         return count;
     }
 
+    /// Generates neighbour offsets for a square kernel.
+    /// <param name="kernelSize">Kernel dimension (odd).</param>
+    /// <returns>List of offsets excluding the origin.</returns>
     private static List<Vector2I> BuildNeighbourOffsets(int kernelSize) {
         var half = kernelSize / 2;
         var offsets = new List<Vector2I>((kernelSize * kernelSize) - 1);
@@ -182,6 +208,10 @@ public static class CellularAutomata {
         return offsets;
     }
 
+    /// Builds a mask of forced floors carved from connectors to the seed.
+    /// <param name="task">Cell task providing connectors and seed.</param>
+    /// <param name="mask">Cell mask.</param>
+    /// <returns>Byte grid with 1 where floors are forced open.</returns>
     private static byte[,] BuildConnectorCarveMask(CellTask task, byte[,] mask) {
         var width = mask.GetLength(0);
         var height = mask.GetLength(1);
@@ -203,6 +233,11 @@ public static class CellularAutomata {
         return carve;
     }
 
+    /// Rasterizes a line between two local points and marks carve cells.
+    /// <param name="start">Line start (connector local coords).</param>
+    /// <param name="end">Line end (seed local coords).</param>
+    /// <param name="mask">Cell mask.</param>
+    /// <param name="carve">Carve mask to write into.</param>
     private static void CarveLine(Vector2I start, Vector2I end, byte[,] mask, byte[,] carve) {
         foreach (var cell in RasterLine(start, end)) {
             if (cell.X < 0 || cell.Y < 0 || cell.X >= carve.GetLength(0) || cell.Y >= carve.GetLength(1)) {
@@ -215,6 +250,10 @@ public static class CellularAutomata {
         }
     }
 
+    /// Bresenham raster of a line between two points.
+    /// <param name="a">Start point.</param>
+    /// <param name="b">End point.</param>
+    /// <returns>Enumerable of grid coordinates along the line.</returns>
     private static IEnumerable<Vector2I> RasterLine(Vector2I a, Vector2I b) {
         var x0 = a.X;
         var y0 = a.Y;
@@ -241,6 +280,9 @@ public static class CellularAutomata {
         }
     }
 
+    /// Swaps two CA buffers.
+    /// <param name="a">First buffer reference.</param>
+    /// <param name="b">Second buffer reference.</param>
     private static void Swap(ref byte[,] a, ref byte[,] b) {
         var tmp = a;
         a = b;

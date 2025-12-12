@@ -30,6 +30,7 @@ public partial class Voronoi : Node {
     /// Seed chain used for the last generation pass.
     public VoronoiSeedChain SeedChain { get; private set; }
 
+    /// Godot lifecycle: optionally triggers generation.
     public override void _Ready() {
         if (GenerateOnReady) {
             Generate();
@@ -37,12 +38,14 @@ public partial class Voronoi : Node {
     }
 
     /// Runs Poisson sampling and builds the Voronoi topology (no drawing).
+    /// <returns>Generated diagram assigned to Diagram.</returns>
     public void Generate() {
         var seeds = new VoronoiSeedChain(Seed);
         Generate(seeds);
     }
 
     /// Runs Poisson sampling using a supplied deterministic seed chain.
+    /// <param name="seeds">Seed chain to use for generation.</param>
     public void Generate(VoronoiSeedChain seeds) {
         SeedChain = seeds;
         var padding = Mathf.Max(0, SeedPadding);
@@ -62,6 +65,8 @@ public partial class Voronoi : Node {
     }
 
     /// Finds the Voronoi cell whose seed is closest to the given point. Returns null if no diagram is available or the point is outside the canvas.
+    /// <param name="point">Point in world/canvas space.</param>
+    /// <returns>Voronoi cell containing the point, or null.</returns>
     public VoronoiCell? FindCell(Vector2 point) {
         if (Diagram == null || Diagram.Seeds.Count == 0) {
             return null;
@@ -83,6 +88,9 @@ public partial class Voronoi : Node {
     }
 
     /// Checks whether the provided point belongs to the specified cell (i.e., that cell's seed is the closest and the point lies within the canvas).
+    /// <param name="cellIndex">Cell index to test.</param>
+    /// <param name="point">Point in canvas space.</param>
+    /// <returns>True if the point lies in the cell.</returns>
     public bool IsPointInCell(int cellIndex, Vector2 point) {
         if (Diagram == null || cellIndex < 0 || cellIndex >= Diagram.Cells.Count) {
             return false;
@@ -95,6 +103,9 @@ public partial class Voronoi : Node {
         return TryGetOwnershipIndex(point, Diagram.OwnershipGrid, Diagram.Size, out var owner) && owner == cellIndex;
     }
 
+    /// Finds the nearest seed index to a point by brute force.
+    /// <param name="point">Point in canvas space.</param>
+    /// <returns>Index of closest seed.</returns>
     private int FindNearestSeedIndex(Vector2 point) {
         var seeds = Diagram!.Seeds;
         var bestIndex = 0;
@@ -110,11 +121,20 @@ public partial class Voronoi : Node {
         return bestIndex;
     }
 
+    /// Checks if a point lies within the canvas bounds.
+    /// <param name="point">Point to test.</param>
+    /// <returns>True if inside.</returns>
     private bool IsInsideCanvas(Vector2 point) {
         var bounds = new Rect2(Vector2.Zero, CanvasSize);
         return bounds.HasPoint(point);
     }
 
+    /// Maps a point to an ownership index.
+    /// <param name="point">Point in canvas space.</param>
+    /// <param name="ownership">Ownership grid.</param>
+    /// <param name="size">Canvas size.</param>
+    /// <param name="index">Output owner index.</param>
+    /// <returns>True if point is in bounds and owned.</returns>
     private static bool TryGetOwnershipIndex(Vector2 point, int[,] ownership, Vector2I size, out int index) {
         var x = Mathf.FloorToInt(point.X);
         var y = Mathf.FloorToInt(point.Y);
@@ -143,6 +163,13 @@ public class VoronoiDiagram {
     /// Ownership grid mapping each pixel to the nearest seed index; -1 when empty.
     public readonly int[,] OwnershipGrid;
 
+    /// Creates a Voronoi diagram instance.
+    /// <param name="size">Canvas size.</param>
+    /// <param name="seeds">Seed list.</param>
+    /// <param name="cells">Cell list.</param>
+    /// <param name="edges">Edge list.</param>
+    /// <param name="triangles">Delaunay triangles.</param>
+    /// <param name="ownershipGrid">Ownership grid.</param>
     private VoronoiDiagram(Vector2I size, List<Vector2> seeds, List<VoronoiCell> cells, List<VoronoiEdge> edges,
                            List<DelaunayTriangle> triangles, int[,] ownershipGrid) {
         Size = size;
@@ -154,6 +181,9 @@ public class VoronoiDiagram {
     }
 
     /// Builds a Voronoi diagram from the given seeds, clipped to the provided size.
+    /// <param name="seeds">Seed positions.</param>
+    /// <param name="size">Canvas size.</param>
+    /// <returns>Constructed Voronoi diagram.</returns>
     public static VoronoiDiagram Build(List<Vector2> seeds, Vector2I size) {
         var cells = new List<VoronoiCell>(seeds.Count);
         for (var i = 0; i < seeds.Count; i++) {
@@ -196,6 +226,9 @@ public class VoronoiDiagram {
         return new VoronoiDiagram(size, seeds, cells, edges, triangles, ownership);
     }
 
+    /// Builds Delaunay triangles from seed points.
+    /// <param name="seeds">Seed positions.</param>
+    /// <returns>List of Delaunay triangles.</returns>
     private static List<DelaunayTriangle> BuildDelaunayTriangles(List<Vector2> seeds) {
         var points = seeds.ToArray();
         var triangulation = Geometry2D.TriangulateDelaunay(points);
@@ -212,6 +245,10 @@ public class VoronoiDiagram {
         return triangles;
     }
 
+    /// Builds an ownership grid mapping each pixel to the nearest seed.
+    /// <param name="seeds">Seed positions.</param>
+    /// <param name="size">Canvas dimensions.</param>
+    /// <returns>Ownership grid of size.X by size.Y.</returns>
     private static int[,] BuildOwnershipGrid(List<Vector2> seeds, Vector2I size) {
         var width = size.X;
         var height = size.Y;
@@ -244,6 +281,12 @@ public class VoronoiDiagram {
         return grid;
     }
 
+    /// Converts Delaunay triangulation into Voronoi edges.
+    /// <param name="seeds">Seed positions.</param>
+    /// <param name="size">Canvas size for clipping.</param>
+    /// <param name="cells">Cell collection to populate neighbours/edges.</param>
+    /// <param name="triangles">Delaunay triangles.</param>
+    /// <returns>List of Voronoi edges.</returns>
     private static List<VoronoiEdge> BuildEdgesFromDelaunay(List<Vector2> seeds, Vector2I size, List<VoronoiCell> cells, List<DelaunayTriangle> triangles) {
         if (triangles.Count == 0) {
             return new List<VoronoiEdge>();
@@ -327,6 +370,9 @@ public class VoronoiDiagram {
         return voronoiEdges;
     }
 
+    /// Computes AABBs for each cell based on edges.
+    /// <param name="cells">Cells to populate.</param>
+    /// <param name="edges">Edge list.</param>
     private static void ComputeBoundingBoxes(List<VoronoiCell> cells, List<VoronoiEdge> edges) {
         for (var i = 0; i < cells.Count; i++) {
             var cell = cells[i];
@@ -351,6 +397,12 @@ public class VoronoiDiagram {
         }
     }
 
+    /// Expands integer bounds to include a point.
+    /// <param name="point">Point to include.</param>
+    /// <param name="minX">Min X bound (mutable).</param>
+    /// <param name="minY">Min Y bound (mutable).</param>
+    /// <param name="maxX">Max X bound (mutable).</param>
+    /// <param name="maxY">Max Y bound (mutable).</param>
     private static void ExpandBounds(Vector2 point, ref int minX, ref int minY, ref int maxX, ref int maxY) {
         minX = Math.Min(minX, Mathf.FloorToInt(point.X));
         minY = Math.Min(minY, Mathf.FloorToInt(point.Y));
@@ -359,6 +411,11 @@ public class VoronoiDiagram {
     }
 
     /// Renders the Voronoi edges and seeds into an Image for quick inspection.
+    /// <param name="size">Image dimensions.</param>
+    /// <param name="edgeColor">Color for edges.</param>
+    /// <param name="seedColor">Color for seeds.</param>
+    /// <param name="strokeWidth">Stroke width for edges.</param>
+    /// <returns>Generated debug image.</returns>
     public Image DrawDebugImage(Vector2I size, Color edgeColor, Color seedColor, int strokeWidth) {
         var image = Image.CreateEmpty(size.X, size.Y, false, Image.Format.Rgba8);
         image.Fill(new Color(0.06f, 0.06f, 0.06f, 1f));
@@ -374,6 +431,12 @@ public class VoronoiDiagram {
         return image;
     }
 
+    /// Draws a Bresenham line into an image.
+    /// <param name="image">Target image.</param>
+    /// <param name="start">Line start.</param>
+    /// <param name="end">Line end.</param>
+    /// <param name="color">Color to draw.</param>
+    /// <param name="thickness">Stroke thickness.</param>
     private static void DrawLine(Image image, Vector2 start, Vector2 end, Color color, int thickness) {
         var a = new Vector2I(Mathf.RoundToInt(start.X), Mathf.RoundToInt(start.Y));
         var b = new Vector2I(Mathf.RoundToInt(end.X), Mathf.RoundToInt(end.Y));
@@ -405,6 +468,11 @@ public class VoronoiDiagram {
         }
     }
 
+    /// Draws a filled circle into an image.
+    /// <param name="image">Target image.</param>
+    /// <param name="center">Circle center.</param>
+    /// <param name="radius">Circle radius.</param>
+    /// <param name="color">Color to draw.</param>
     private static void DrawCircle(Image image, Vector2 center, int radius, Color color) {
         var c = new Vector2I(Mathf.RoundToInt(center.X), Mathf.RoundToInt(center.Y));
         for (var y = -radius; y <= radius; y++) {
@@ -416,6 +484,12 @@ public class VoronoiDiagram {
         }
     }
 
+    /// Safely sets pixels with thickness inside image bounds.
+    /// <param name="image">Target image.</param>
+    /// <param name="x">Pixel X.</param>
+    /// <param name="y">Pixel Y.</param>
+    /// <param name="color">Color to apply.</param>
+    /// <param name="thickness">Stroke thickness.</param>
     private static void SetPixelSafe(Image image, int x, int y, Color color, int thickness) {
         for (var dy = -thickness + 1; dy < thickness; dy++) {
             for (var dx = -thickness + 1; dx < thickness; dx++) {
@@ -428,6 +502,9 @@ public class VoronoiDiagram {
         }
     }
 
+    /// Clamps a point to a rectangle.
+    /// <param name="point">Point to clamp.</param>
+    /// <param name="bounds">Rectangle bounds.</param>
     private static void ClipPointToBounds(ref Vector2 point, Rect2 bounds) {
         var maxX = bounds.Position.X + bounds.Size.X - 1f;
         var maxY = bounds.Position.Y + bounds.Size.Y - 1f;
@@ -436,6 +513,11 @@ public class VoronoiDiagram {
         point = new Vector2(x, y);
     }
 
+    /// Clips a line segment to rectangle bounds.
+    /// <param name="p0">Line start (mutated).</param>
+    /// <param name="p1">Line end (mutated).</param>
+    /// <param name="bounds">Clipping rectangle.</param>
+    /// <returns>True if segment intersects the bounds.</returns>
     private static bool TryClipSegmentToBounds(ref Vector2 p0, ref Vector2 p1, Rect2 bounds) {
         var x0 = p0.X;
         var y0 = p0.Y;
@@ -484,6 +566,10 @@ public class VoronoiDiagram {
         return true;
     }
 
+    /// Computes a normalized perpendicular direction to segment AB.
+    /// <param name="a">Segment start.</param>
+    /// <param name="b">Segment end.</param>
+    /// <returns>Perpendicular unit vector.</returns>
     private static Vector2 ComputePerpendicularDirection(Vector2 a, Vector2 b) {
         var dir = b - a;
         if (dir == Vector2.Zero) {
@@ -493,6 +579,11 @@ public class VoronoiDiagram {
         return new Vector2(-dir.Y, dir.X).Normalized();
     }
 
+    /// Computes the circumcenter of a triangle.
+    /// <param name="a">Vertex A.</param>
+    /// <param name="b">Vertex B.</param>
+    /// <param name="c">Vertex C.</param>
+    /// <returns>Circumcenter point.</returns>
     private static Vector2 ComputeCircumcenter(Vector2 a, Vector2 b, Vector2 c) {
         var d = 2f * (a.X * (b.Y - c.Y) + b.X * (c.Y - a.Y) + c.X * (a.Y - b.Y));
         if (Mathf.IsZeroApprox(d)) {
@@ -507,20 +598,30 @@ public class VoronoiDiagram {
         return new Vector2(ux, uy);
     }
 
+    /// Delaunay triangle representation.
     public readonly struct DelaunayTriangle {
         public readonly int[] Vertices;
         public readonly Vector2 Circumcenter;
 
+        /// Constructs a triangle record.
+        /// <param name="a">First vertex index.</param>
+        /// <param name="b">Second vertex index.</param>
+        /// <param name="c">Third vertex index.</param>
+        /// <param name="circumcenter">Circumcenter position.</param>
         public DelaunayTriangle(int a, int b, int c, Vector2 circumcenter) {
             Vertices = new[] { a, b, c };
             Circumcenter = circumcenter;
         }
     }
 
+    /// Hashable undirected edge key.
     private readonly struct EdgeKey : IEquatable<EdgeKey> {
         public readonly int A;
         public readonly int B;
 
+        /// Initializes an undirected edge key (ordered internally).
+        /// <param name="a">First vertex index.</param>
+        /// <param name="b">Second vertex index.</param>
         public EdgeKey(int a, int b) {
             if (a < b) {
                 A = a;
@@ -545,12 +646,15 @@ public class VoronoiDiagram {
         }
     }
 
+    /// Triangle membership data for an edge.
     private struct EdgeData {
         public int FirstTriangle;
         public int SecondTriangle;
         public int OppositeA;
         public int OppositeB;
 
+        /// Creates a new edge data container.
+        /// <returns>Initialized edge data.</returns>
         public static EdgeData Create() {
             return new EdgeData {
                 FirstTriangle = -1,
@@ -560,6 +664,9 @@ public class VoronoiDiagram {
             };
         }
 
+        /// Registers a triangle incident to this edge.
+        /// <param name="triangleIndex">Triangle index.</param>
+        /// <param name="opposite">Opposite vertex index.</param>
         public void AddTriangle(int triangleIndex, int opposite) {
             if (FirstTriangle == -1) {
                 FirstTriangle = triangleIndex;
@@ -590,6 +697,9 @@ public class VoronoiCell {
     /// Axis-aligned bounding box fully covering the cell; populated during diagram construction.
     public Rect2I BoundingBox { get; internal set; }
 
+    /// Constructs a Voronoi cell.
+    /// <param name="seedIndex">Seed index.</param>
+    /// <param name="seed">Seed position.</param>
     public VoronoiCell(int seedIndex, Vector2 seed) {
         SeedIndex = seedIndex;
         Seed = seed;

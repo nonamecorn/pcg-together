@@ -16,11 +16,18 @@ public partial class PoissonDS : Node {
     [Export] public int Seed = 1337;
     
     /// Generates Poisson disk samples for the configured region.
+    /// <returns>List of sampled points.</returns>
     public List<Vector2> Generate() {
         return Generate(RegionSize, Radius, RejectionSamples, Seed);
     }
 
     /// Generates Poisson disk samples for the provided settings; optionally caps the number of points.
+    /// <param name="regionSize">Size of the sampling area.</param>
+    /// <param name="radius">Minimum distance between points.</param>
+    /// <param name="rejectionSamples">Attempts per active sample.</param>
+    /// <param name="seed">Deterministic seed.</param>
+    /// <param name="maxPoints">Optional cap on number of points.</param>
+    /// <returns>Sampled point list.</returns>
     public static List<Vector2> Generate(Vector2I regionSize,
                                          float radius,
                                          int rejectionSamples,
@@ -89,14 +96,27 @@ public partial class PoissonDS : Node {
         return result;
     }
 
+    /// Converts a position to a grid cell.
+    /// <param name="point">Point to convert.</param>
+    /// <param name="cellSize">Cell dimension.</param>
+    /// <returns>Cell coordinate.</returns>
     private static Vector2I ToCell(Vector2 point, float cellSize) {
         return new Vector2I(Mathf.FloorToInt(point.X / cellSize), Mathf.FloorToInt(point.Y / cellSize));
     }
 
+    /// Checks bounds inclusion.
+    /// <param name="point">Point to test.</param>
+    /// <param name="regionSize">Area size.</param>
+    /// <returns>True if point lies inside.</returns>
     private static bool IsInside(Vector2 point, Vector2I regionSize) {
         return point.X >= 0 && point.X < regionSize.X && point.Y >= 0 && point.Y < regionSize.Y;
     }
 
+    /// Samples a candidate point around a center within the annulus.
+    /// <param name="center">Active sample center.</param>
+    /// <param name="radius">Minimum spacing.</param>
+    /// <param name="rng">Deterministic RNG reference.</param>
+    /// <returns>Candidate point.</returns>
     private static Vector2 GenerateCandidate(Vector2 center, float radius, ref DeterministicRng rng) {
         // Sample radius uniformly over the annulus to avoid clustering.
         var distance = radius * (1f + Mathf.Sqrt(rng.NextFloat()));
@@ -105,6 +125,14 @@ public partial class PoissonDS : Node {
         return center + offset;
     }
 
+    /// Validates a candidate by checking neighbours and bounds.
+    /// <param name="candidate">Candidate point.</param>
+    /// <param name="cellSize">Grid cell size.</param>
+    /// <param name="radiusSquared">Squared minimum radius.</param>
+    /// <param name="grid">Spatial grid.</param>
+    /// <param name="points">Existing points.</param>
+    /// <param name="regionSize">Sampling area.</param>
+    /// <returns>True if candidate satisfies spacing.</returns>
     private static bool IsValid(Vector2 candidate, float cellSize, float radiusSquared, int[,] grid,
                                 List<Vector2> points, Vector2I regionSize) {
         var cell = ToCell(candidate, cellSize);

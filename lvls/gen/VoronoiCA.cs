@@ -12,13 +12,22 @@ namespace PCGTogether.lvls.gen;
 public sealed class VoronoiCA {
     private const int CaSalt = unchecked((int)0xCA11FACEu);
 
+    /// Seed chain used by this run.
     public VoronoiSeedChain SeedChain { get; }
+    /// Canvas size of the diagram.
     public Vector2I CanvasSize { get; }
+    /// Ownership map (pixel -> seed index).
     public int[,] OwnershipGrid { get; }
+    /// Prepared cell tasks.
     public IReadOnlyList<CellTask> CellTasks => _cellTasks;
 
     private readonly List<CellTask> _cellTasks;
 
+    /// Internal constructor storing immutable inputs.
+    /// <param name="seedChain">Seed chain used during generation.</param>
+    /// <param name="canvasSize">Canvas dimensions.</param>
+    /// <param name="ownershipGrid">Ownership map.</param>
+    /// <param name="tasks">Prepared cell tasks.</param>
     private VoronoiCA(VoronoiSeedChain seedChain, Vector2I canvasSize, int[,] ownershipGrid, List<CellTask> tasks) {
         SeedChain = seedChain;
         CanvasSize = canvasSize;
@@ -89,6 +98,11 @@ public sealed class VoronoiCA {
         return new CaRunResult(CanvasSize, OwnershipGrid, results, merged);
     }
 
+    /// Merges individual CA results into a single grid using ownership to avoid overlaps.
+    /// <param name="results">Per-cell results.</param>
+    /// <param name="size">Canvas size.</param>
+    /// <param name="ownership">Ownership grid.</param>
+    /// <returns>Merged wall grid.</returns>
     private static byte[,] MergeResults(IReadOnlyList<CaResult> results, Vector2I size, int[,] ownership) {
         var final = new byte[size.X, size.Y];
         for (var i = 0; i < results.Count; i++) {
@@ -109,6 +123,11 @@ public sealed class VoronoiCA {
         return final;
     }
 
+    /// Expands a bounding box with padding while clamping to the canvas.
+    /// <param name="bounds">Original bounds.</param>
+    /// <param name="canvasSize">Canvas size.</param>
+    /// <param name="padding">Padding in pixels.</param>
+    /// <returns>Padded and clamped bounds.</returns>
     private static Rect2I PadBounds(Rect2I bounds, Vector2I canvasSize, int padding) {
         var minX = Math.Max(0, bounds.Position.X - padding);
         var minY = Math.Max(0, bounds.Position.Y - padding);
@@ -119,6 +138,11 @@ public sealed class VoronoiCA {
         return new Rect2I(new Vector2I(minX, minY), new Vector2I(width, height));
     }
 
+    /// Builds a per-cell mask from ownership data.
+    /// <param name="region">Region to extract.</param>
+    /// <param name="ownership">Ownership grid.</param>
+    /// <param name="cellIndex">Cell id to include.</param>
+    /// <returns>Mask with 1 where region belongs to the cell.</returns>
     private static byte[,] BuildMask(Rect2I region, int[,] ownership, int cellIndex) {
         var mask = new byte[region.Size.X, region.Size.Y];
         var startX = region.Position.X;
@@ -136,12 +160,20 @@ public sealed class VoronoiCA {
         return mask;
     }
 
+    /// Converts a world point to local region coordinates.
+    /// <param name="worldPoint">World-space point.</param>
+    /// <param name="region">Region bounds.</param>
+    /// <returns>Clamped local coordinate.</returns>
     private static Vector2I ToLocal(Vector2 worldPoint, Rect2I region) {
         var lx = Mathf.Clamp(Mathf.FloorToInt(worldPoint.X) - region.Position.X, 0, region.Size.X - 1);
         var ly = Mathf.Clamp(Mathf.FloorToInt(worldPoint.Y) - region.Position.Y, 0, region.Size.Y - 1);
         return new Vector2I(lx, ly);
     }
 
+    /// Computes the inward direction from a connector point toward the seed.
+    /// <param name="seed">Seed location.</param>
+    /// <param name="point">Connector point.</param>
+    /// <returns>Normalized inward vector.</returns>
     private static Vector2 InwardDirection(Vector2 seed, Vector2 point) {
         var dir = seed - point;
         if (dir.LengthSquared() < 1e-6f) {
@@ -151,6 +183,10 @@ public sealed class VoronoiCA {
         return dir.Normalized();
     }
 
+    /// Organizes traversal connections by cell.
+    /// <param name="traversal">Optional traversal graph.</param>
+    /// <param name="diagram">Voronoi diagram reference.</param>
+    /// <returns>Map of cell index to raw connectors.</returns>
     private static Dictionary<int, List<RawConnector>> BuildConnectorMap(VoronoiTraversalGraph? traversal, VoronoiDiagram diagram) {
         var map = new Dictionary<int, List<RawConnector>>(diagram.Cells.Count);
         if (traversal == null) {
@@ -173,6 +209,7 @@ public sealed class VoronoiCA {
         }
     }
 
+    /// Minimal connector data used during CA prep.
     private readonly struct RawConnector {
         public readonly int OtherCell;
         public readonly Vector2 WorldPoint;
@@ -188,13 +225,26 @@ public sealed class VoronoiCA {
 
 /// Immutable CA job payload for a single Voronoi cell.
 public sealed class CellTask {
+    /// Cell index within the diagram.
     public int CellIndex { get; }
+    /// Region of the cell in world coordinates.
     public Rect2I Region { get; }
+    /// Mask of the cell (1=inside).
     public byte[,] Mask { get; }
+    /// Connector constraints.
     public IReadOnlyList<CellConnector> Connectors { get; }
+    /// Seed for this CA run.
     public int CaSeed { get; }
+    /// Seed position in world space.
     public Vector2 SeedPosition { get; }
 
+    /// Builds an immutable CA task payload.
+    /// <param name="cellIndex">Cell index.</param>
+    /// <param name="region">World region covered by the mask.</param>
+    /// <param name="mask">Cell mask.</param>
+    /// <param name="connectors">Connectors for this cell.</param>
+    /// <param name="caSeed">Seed for CA RNG.</param>
+    /// <param name="seedPosition">Original Voronoi seed position.</param>
     public CellTask(int cellIndex, Rect2I region, byte[,] mask, IReadOnlyList<CellConnector> connectors, int caSeed, Vector2 seedPosition) {
         CellIndex = cellIndex;
         Region = region;
@@ -207,10 +257,15 @@ public sealed class CellTask {
 
 /// Connection constraint for carving portals between adjacent CA masks.
 public readonly struct CellConnector {
+    /// Neighboring cell id.
     public int OtherCell { get; }
+    /// Edge index in the Voronoi diagram.
     public int EdgeIndex { get; }
+    /// Connector point in world space.
     public Vector2 WorldPoint { get; }
+    /// Connector point in local cell coordinates.
     public Vector2I LocalPoint { get; }
+    /// Direction pointing into this cell.
     public Vector2 DirectionIntoCell { get; }
 
     public CellConnector(int otherCell, int edgeIndex, Vector2 worldPoint, Vector2I localPoint, Vector2 directionIntoCell) {
@@ -224,12 +279,20 @@ public readonly struct CellConnector {
 
 /// Aggregated CA output for all Voronoi cells.
 public sealed class CaRunResult {
+    /// Canvas dimensions.
     public Vector2I CanvasSize { get; }
+    /// Ownership grid used for merging.
     public int[,] Ownership { get; }
+    /// Per-cell CA results.
     public IReadOnlyList<CaResult> CellResults { get; }
     /// Final merged map (1=wall, 0=floor) in canvas space.
     public byte[,] Merged { get; }
 
+    /// Builds a run result container.
+    /// <param name="canvasSize">Canvas dimensions.</param>
+    /// <param name="ownership">Ownership grid reference.</param>
+    /// <param name="cellResults">Results for each cell.</param>
+    /// <param name="merged">Merged world grid.</param>
     public CaRunResult(Vector2I canvasSize, int[,] ownership, IReadOnlyList<CaResult> cellResults, byte[,] merged) {
         CanvasSize = canvasSize;
         Ownership = ownership;

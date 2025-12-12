@@ -7,6 +7,13 @@ namespace PCGTogether.lvls.gen;
 /// Builds a traversal graph over a Voronoi diagram by first creating a biased spanning tree (Kruskal-style),
 /// then sampling additional edges (weighted by length) until a neighbour coverage ratio is reached.
 public static class VoronoiTraversal {
+    /// Constructs a traversal graph from a Voronoi diagram.
+    /// <param name="diagram">Voronoi diagram to traverse.</param>
+    /// <param name="neighborRatio">Desired neighbour coverage ratio (0..1).</param>
+    /// <param name="rngSeed">Seed for deterministic sampling.</param>
+    /// <param name="includeBorderEdges">If false, skips edges on the border.</param>
+    /// <param name="connectionDistributionScaling">Bias for connector placement along edges.</param>
+    /// <returns>Built traversal graph.</returns>
     public static VoronoiTraversalGraph Build(VoronoiDiagram diagram, float neighborRatio = 0.75f, int rngSeed = 12345,
                                               bool includeBorderEdges = true, float connectionDistributionScaling = 1f) {
         neighborRatio = Mathf.Clamp(neighborRatio, 0f, 1f);
@@ -100,6 +107,9 @@ public static class VoronoiTraversal {
         return new VoronoiTraversalGraph(diagram, neighborPairs.Count, targetConnections, connections, connectedPairs);
     }
 
+    /// Collects all unique neighbour pairs in the diagram.
+    /// <param name="diagram">Source diagram.</param>
+    /// <returns>Set of neighbour pairs.</returns>
     private static HashSet<PairKey> CollectNeighborPairs(VoronoiDiagram diagram) {
         var pairs = new HashSet<PairKey>();
         for (var i = 0; i < diagram.Cells.Count; i++) {
@@ -111,6 +121,9 @@ public static class VoronoiTraversal {
         return pairs;
     }
 
+    /// Builds a cumulative distribution from weights.
+    /// <param name="weights">Weights to accumulate.</param>
+    /// <returns>Cumulative sum list.</returns>
     private static List<float> BuildCumulative(List<float> weights) {
         var cumulative = new List<float>(weights.Count);
         float total = 0f;
@@ -122,6 +135,10 @@ public static class VoronoiTraversal {
         return cumulative;
     }
 
+    /// Binary searches a cumulative array for a value.
+    /// <param name="cumulative">Cumulative list.</param>
+    /// <param name="value">Value to locate.</param>
+    /// <returns>Index of selected item.</returns>
     private static int BinarySearchCumulative(List<float> cumulative, float value) {
         var low = 0;
         var high = cumulative.Count - 1;
@@ -138,12 +155,22 @@ public static class VoronoiTraversal {
         return low;
     }
 
+    /// Removes a candidate edge and rebuilds cumulative weights.
+    /// <param name="edges">Edge list.</param>
+    /// <param name="weights">Weight list.</param>
+    /// <param name="index">Index to remove.</param>
+    /// <param name="cumulative">Rebuilt cumulative weights.</param>
     private static void RemoveCandidate(List<int> edges, List<float> weights, int index, out List<float> cumulative) {
         edges.RemoveAt(index);
         weights.RemoveAt(index);
         cumulative = BuildCumulative(weights);
     }
 
+    /// Samples a point along an edge using a smooth distribution.
+    /// <param name="edge">Edge to sample.</param>
+    /// <param name="rng">Deterministic RNG.</param>
+    /// <param name="distributionScale">Bias factor around midpoint.</param>
+    /// <returns>Point on the edge.</returns>
     private static Vector2 SamplePointOnEdge(VoronoiEdge edge, ref DeterministicRng rng, float distributionScale) {
         var t = rng.NextFloat();
         var smooth = 3f * t * t - 2f * t * t * t; // cubic smoothstep
@@ -164,15 +191,26 @@ public static class VoronoiTraversal {
 
 /// Traversal graph built from Voronoi connectivity.
 public class VoronoiTraversalGraph {
+    /// Source Voronoi diagram.
     public VoronoiDiagram Diagram { get; }
+    /// Number of neighbour pairs in the diagram.
     public int TotalNeighborPairs { get; }
+    /// Target number of connections.
     public int TargetConnections { get; }
+    /// Actual connections chosen.
     public IReadOnlyList<VoronoiConnection> Connections => _connections;
+    /// Connected pair set for quick lookup.
     public IReadOnlyCollection<PairKey> ConnectedPairs => _connectedPairs;
 
     private readonly List<VoronoiConnection> _connections;
     private readonly HashSet<PairKey> _connectedPairs;
 
+    /// Constructs a traversal graph container.
+    /// <param name="diagram">Source diagram.</param>
+    /// <param name="totalNeighborPairs">Total possible neighbour pairs.</param>
+    /// <param name="targetConnections">Target connections generated.</param>
+    /// <param name="connections">Connection list.</param>
+    /// <param name="connectedPairs">Pair lookup set.</param>
     public VoronoiTraversalGraph(VoronoiDiagram diagram, int totalNeighborPairs, int targetConnections,
                                  List<VoronoiConnection> connections, HashSet<PairKey> connectedPairs) {
         Diagram = diagram;
@@ -259,12 +297,23 @@ public class VoronoiTraversalGraph {
 
 /// A single connection along a Voronoi edge, including the sampled point.
 public class VoronoiConnection {
+    /// First cell id.
     public int CellA { get; }
+    /// Second cell id.
     public int CellB { get; }
+    /// Index of the underlying edge.
     public int EdgeIndex { get; }
+    /// Sampled point along the edge.
     public Vector2 PointOnEdge { get; }
+    /// Edge length.
     public float EdgeLength { get; }
 
+    /// Constructs a connection entry.
+    /// <param name="cellA">First cell id.</param>
+    /// <param name="cellB">Second cell id.</param>
+    /// <param name="edgeIndex">Edge index.</param>
+    /// <param name="pointOnEdge">Sampled point on edge.</param>
+    /// <param name="edgeLength">Length of the edge.</param>
     public VoronoiConnection(int cellA, int cellB, int edgeIndex, Vector2 pointOnEdge, float edgeLength) {
         CellA = cellA;
         CellB = cellB;
@@ -278,6 +327,9 @@ public readonly struct PairKey : IEquatable<PairKey> {
     public readonly int A;
     public readonly int B;
 
+    /// Builds an ordered pair key.
+    /// <param name="a">First index.</param>
+    /// <param name="b">Second index.</param>
     public PairKey(int a, int b) {
         if (a < b) {
             A = a;
@@ -307,6 +359,8 @@ internal sealed class UnionFind {
     private readonly int[] _rank;
     public int ComponentCount { get; private set; }
 
+    /// Initializes a disjoint-set forest.
+    /// <param name="size">Number of elements.</param>
     public UnionFind(int size) {
         _parent = new int[size];
         _rank = new int[size];
@@ -317,6 +371,9 @@ internal sealed class UnionFind {
         }
     }
 
+    /// Finds the root of an element with path compression.
+    /// <param name="x">Element index.</param>
+    /// <returns>Root representative.</returns>
     public int Find(int x) {
         if (_parent[x] != x) {
             _parent[x] = Find(_parent[x]);
@@ -325,6 +382,10 @@ internal sealed class UnionFind {
         return _parent[x];
     }
 
+    /// Unions two sets.
+    /// <param name="a">First element.</param>
+    /// <param name="b">Second element.</param>
+    /// <returns>True if a merge happened.</returns>
     public bool Union(int a, int b) {
         var rootA = Find(a);
         var rootB = Find(b);

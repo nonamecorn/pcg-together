@@ -7,27 +7,43 @@ namespace PCGTogether.lvls.gen;
 
 /// High-level world generator that runs Voronoi + traversal + CA and paints into a TileMapLayer.
 public partial class WorldGen : Node2D {
+    /// NodePath to the Voronoi node.
     [Export] public NodePath VoronoiNodePath = "";
+    /// NodePath to the TileMapLayer to paint.
     [Export] public NodePath TileMapPath = "";
+    /// Optional debug view to refresh after generation.
     [Export] public NodePath DebugViewPath = "";
+    /// If true, generation runs on _Ready.
     [Export] public bool GenerateOnReady = true;
 
     [ExportCategory("Voronoi")]
+    /// Ratio of neighbours to keep connected.
     [Export] public float NeighborCoverage = 0.5f;
+    /// Traversal seed override (0 => derived).
     [Export] public int TraversalSeed = 0;
+    /// Bias for connector sampling along edges.
     [Export(PropertyHint.Range, "0,1,0.01")] public float ConnectionDistributionScaling = 0.75f;
+    /// Padding around each cell mask for CA.
     [Export] public int CellPadding = 4;
 
     [ExportCategory("CA")]
+    /// CA kernel size (odd).
     [Export] public int KernelSize = 5;
+    /// Birth threshold.
     [Export] public int BirthLimit = 4;
+    /// Survival threshold.
     [Export] public int SurvivalLimit = 3;
+    /// Number of CA iterations.
     [Export] public int Iterations = 4;
+    /// Initial wall probability for CA seeds.
     [Export(PropertyHint.Range, "0,1,0.01")] public float InitialWallProbability = 0.45f;
 
     [ExportCategory("Tilemap")]
+    /// Thickness applied when painting floors.
     [Export] public int PathThickness = 2;
+    /// TileMap terrain set id.
     [Export] public int TerrainSet = 0;
+    /// TileMap terrain id.
     [Export] public int TerrainId = 0;
 
     private Voronoi? _voronoi;
@@ -35,6 +51,7 @@ public partial class WorldGen : Node2D {
     private VoronoiDebugView? _debugView;
     private VoronoiTraversalGraph? _traversalGraph;
 
+    /// Godot lifecycle: fetches required nodes and optionally triggers generation.
     public override void _Ready() {
         _voronoi = GetNodeOrNull<Voronoi>(VoronoiNodePath);
         _tileMap = GetNodeOrNull<TileMapLayer>(TileMapPath);
@@ -72,6 +89,8 @@ public partial class WorldGen : Node2D {
         _traversalGraph = traversal;
     }
 
+    /// Paints merged CA output into the TileMapLayer.
+    /// <param name="result">Merged CA result.</param>
     private void PaintTilemap(CaRunResult result) {
         if (_tileMap == null) {
             return;
@@ -94,6 +113,10 @@ public partial class WorldGen : Node2D {
         }
     }
 
+    /// Adds a square footprint around a tile coordinate.
+    /// <param name="center">Center tile coordinate.</param>
+    /// <param name="thickness">Thickness radius.</param>
+    /// <param name="cells">Collection to append painted tiles into.</param>
     private static void AddThickCell(Vector2I center, int thickness, List<Vector2I> cells) {
         var r = Mathf.Max(0, thickness - 1);
         for (var dy = -r; dy <= r; dy++) {

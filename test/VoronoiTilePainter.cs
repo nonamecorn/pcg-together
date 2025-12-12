@@ -7,19 +7,28 @@ namespace PCGTogether.test;
 
 /// Paints Voronoi traversal paths onto a TileMap by clearing terrain along the connections.
 public partial class VoronoiTilePainter : Node2D {
+    /// Path to the Voronoi generator node.
     [Export] public NodePath VoronoiNodePath;
+    /// Path to the TileMap to paint.
     [Export] public NodePath TileMapPath;
+    /// If true, paint on _Ready.
     [Export] public bool GenerateOnReady = true;
+    /// Target neighbour coverage for traversal generation.
     [Export] public float NeighborCoverage = 0.5f;
+    /// Seed override for traversal generation.
     [Export] public int TraversalSeed = 42;
     [Export(PropertyHint.Range, "0,1,0.01")] public float ConnectionDistributionScaling = 0.75f;
+    /// Thickness of carved paths.
     [Export] public int PathThickness = 2;
+    /// Terrain set to modify.
     [Export] public int TerrainSet = 0;
+    /// Terrain id to apply.
     [Export] public int TerrainId = 0;
 
     private Voronoi _voronoi;
     private TileMapLayer _tileMap;
 
+    /// Godot lifecycle: resolves nodes and optionally paints paths.
     public override void _Ready() {
         _voronoi = GetNodeOrNull<Voronoi>(VoronoiNodePath);
         _tileMap = GetNodeOrNull<TileMapLayer>(TileMapPath);
@@ -56,6 +65,10 @@ public partial class VoronoiTilePainter : Node2D {
         }
     }
 
+    /// Rasterizes a line in world space and adds thickened tile coordinates.
+    /// <param name="from">World-space start.</param>
+    /// <param name="to">World-space end.</param>
+    /// <param name="cells">Set collecting carved tiles.</param>
     private void AddLineCells(Vector2 from, Vector2 to, HashSet<Vector2I> cells) {
         // Seeds are already in tilemap-local space; just round to tile coords.
         var start = new Vector2I(Mathf.RoundToInt(from.X), Mathf.RoundToInt(from.Y));
@@ -65,6 +78,9 @@ public partial class VoronoiTilePainter : Node2D {
         }
     }
 
+    /// Adds a square footprint around a coordinate.
+    /// <param name="center">Center tile.</param>
+    /// <param name="cells">Set to append into.</param>
     private void AddThickCell(Vector2I center, HashSet<Vector2I> cells) {
         var r = Mathf.Max(0, PathThickness - 1);
         for (var dy = -r; dy <= r; dy++) {
@@ -74,6 +90,10 @@ public partial class VoronoiTilePainter : Node2D {
         }
     }
 
+    /// Bresenham raster of a line between two tile coordinates.
+    /// <param name="a">Start tile.</param>
+    /// <param name="b">End tile.</param>
+    /// <returns>Enumerable of tiles along the line.</returns>
     private static IEnumerable<Vector2I> RasterLine(Vector2I a, Vector2I b) {
         var x0 = a.X;
         var y0 = a.Y;
@@ -100,6 +120,9 @@ public partial class VoronoiTilePainter : Node2D {
         }
     }
 
+    /// Fills a rectangle with a debug tile.
+    /// <param name="from">Top-left inclusive.</param>
+    /// <param name="to">Bottom-right exclusive.</param>
     public void Fill(Vector2I from, Vector2I to) {
         for (int y = from.Y; y < to.Y; ++y)
         for (int x = from.X; x < to.X; ++x)

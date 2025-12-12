@@ -41,6 +41,8 @@ internal struct DeterministicRng {
         _state = SeedUtils.ScrambleState(seed);
     }
 
+    /// Advances RNG state and returns a 64-bit sample.
+    /// <returns>Unsigned 64-bit pseudo-random value.</returns>
     private ulong NextUInt64() {
         _state ^= _state >> 12;
         _state ^= _state << 25;
@@ -69,8 +71,11 @@ public readonly struct VoronoiSeedChain {
     private const int PoissonSalt = unchecked((int)0xA1B2C3D4u);
     private const int TraversalSalt = 0x00C0FFEE;
 
+    /// Root seed for the world.
     public int BaseSeed { get; }
+    /// Derived Poisson seed.
     public int PoissonSeed { get; }
+    /// Derived traversal seed.
     public int TraversalSeed { get; }
 
     public VoronoiSeedChain(int baseSeed, int? poissonSeedOverride = null, int? traversalSeedOverride = null) {
