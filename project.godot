@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="PCG Together"
-run/main_scene="uid://b57eiw8isn0kd"
+run/main_scene="uid://btyq8q6ypm13m"
 config/features=PackedStringArray("4.5", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 

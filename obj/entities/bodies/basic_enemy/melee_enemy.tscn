@@ -160,11 +160,12 @@ position = Vector2(1, -8)
 [node name="Handmarker" parent="Hand" index="0"]
 position = Vector2(0, 0)
 
-[node name="hurtbox" type="Area2D" parent="Hand/Handmarker" index="0" node_paths=PackedStringArray("hitbox")]
+[node name="hurtbox" type="Area2D" parent="Hand/Handmarker" index="0" node_paths=PackedStringArray("hitbox", "entity")]
 collision_layer = 0
 collision_mask = 16
 script = ExtResource("12_mp6s7")
 hitbox = NodePath("../../../Hitbox")
+entity = NodePath("../../..")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hand/Handmarker/hurtbox" index="0"]
 shape = SubResource("CircleShape2D_lp52g")
