@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://dgepkodsvn5x6"]
+
+[ext_resource type="Script" uid="uid://d0haua8wahn4r" path="res://other/main.gd" id="1_ywdem"]
+
+[sub_resource type="Curve" id="Curve_ywdem"]
+_limits = [0.0, 1.0, 0.0, 50.0]
+_data = [Vector2(0, 0), 0.0, 0.0209828, 0, 0, Vector2(50, 1), 0.014214743, 0.0, 0, 0]
+point_count = 2
+
+[node name="Main" type="Node"]
+script = ExtResource("1_ywdem")
+damage_intencity = SubResource("Curve_ywdem")

@@ -1,8 +1,8 @@
 [gd_scene load_steps=9 format=3 uid="uid://dx085y3efeew"]
 
 [ext_resource type="Script" uid="uid://m6c34ahpldtu" path="res://other/ost_manager.gd" id="1_rbwo4"]
-[ext_resource type="AudioStream" uid="uid://b81xtpv5o7fmq" path="res://snd/ost/bomzi.wav" id="2_kpcc0"]
-[ext_resource type="AudioStream" uid="uid://dorlms23h1cjg" path="res://snd/ost/bomzifigth.wav" id="3_akrnl"]
+[ext_resource type="AudioStream" uid="uid://dwdtf2u6a7vls" path="res://snd/ost/trakckck.wav" id="2_kpcc0"]
+[ext_resource type="AudioStream" uid="uid://d3cwyfwsgyl0a" path="res://snd/ost/trakckckbrawlstars.wav" id="3_akrnl"]
 
 [sub_resource type="AudioStreamSynchronized" id="AudioStreamSynchronized_kpcc0"]
 stream_count = 2
@@ -67,7 +67,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0, 0.5),
 "transitions": PackedFloat32Array(-0.108818814, -0.1830108),
 "update": 0,
-"values": [-30.0, -10.0]
+"values": [-30.0, 0.0]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_6byle"]

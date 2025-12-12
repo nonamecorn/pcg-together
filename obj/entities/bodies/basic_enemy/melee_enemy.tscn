@@ -40,6 +40,7 @@ nav_agent = NodePath("NavigationAgent2D")
 group = "Raiders"
 
 [node name="BodySprite" parent="." index="1"]
+scale = Vector2(-1, 1)
 texture = ExtResource("3_lp3ku")
 hframes = 14
 

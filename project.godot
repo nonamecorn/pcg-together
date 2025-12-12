@@ -17,8 +17,8 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-main="*res://other/main.gd"
 OstManager="*res://other/ost_manager.tscn"
+main="*res://other/global.tscn"
 
 [debug]
 
@@ -27,6 +27,10 @@ gdscript/warnings/integer_division=0
 [dotnet]
 
 project/assembly_name="PCG Together"
+
+[global_group]
+
+Player=""
 
 [input]
 

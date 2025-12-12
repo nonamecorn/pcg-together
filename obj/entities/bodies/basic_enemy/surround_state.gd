@@ -26,11 +26,13 @@ func reloading():
 func enter():
 	if !perceptor.target:
 		loss()
+	main.add_witness(get_instance_id())
 	$changepath.start()
 	$attack.start()
 	_on_changepath_timeout()
 
 func exit():
+	main.erase_witness(get_instance_id())
 	handmarker.get_child(0).stop_fire()
 	$attack.stop()
 	$changepath.stop()

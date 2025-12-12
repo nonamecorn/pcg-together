@@ -8,3 +8,4 @@ func enter():
 	perceptor.queue_free()
 	ray.queue_free()
 	gun.state = 1
+	main.death()
