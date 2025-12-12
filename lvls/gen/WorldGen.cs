@@ -111,6 +111,10 @@ public partial class WorldGen : Node2D {
         if (cells.Count > 0) {
             _tileMap.SetCellsTerrainConnect(new Godot.Collections.Array<Vector2I>(cells), TerrainSet, TerrainId);
         }
+
+        foreach (Vector2 seed in _voronoi!.Diagram!.Seeds) {
+            _tileMap.SetCell(new(Mathf.RoundToInt(seed.X), Mathf.RoundToInt(seed.Y)), 0, Vector2I.Zero);
+        }
     }
 
     /// Adds a square footprint around a tile coordinate.
