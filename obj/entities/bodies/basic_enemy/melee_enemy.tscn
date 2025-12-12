@@ -39,17 +39,12 @@ script = ExtResource("2_lp3ku")
 nav_agent = NodePath("NavigationAgent2D")
 group = "Raiders"
 
-[node name="BodySprite" parent="." index="1"]
-scale = Vector2(-1, 1)
-texture = ExtResource("3_lp3ku")
-hframes = 14
-
-[node name="AnimationPlayer" parent="." index="2"]
+[node name="AnimationPlayer" parent="." index="1"]
 libraries = {
 &"": SubResource("AnimationLibrary_sa105")
 }
 
-[node name="FSM" parent="." index="3" node_paths=PackedStringArray("label", "initial_state")]
+[node name="FSM" parent="." index="2" node_paths=PackedStringArray("label", "initial_state")]
 script = ExtResource("3_7ocqv")
 label = NodePath("../Label")
 initial_state = NodePath("Patrol")
@@ -155,13 +150,19 @@ offset_bottom = -33.0
 position = Vector2(0, -22)
 collision_mask = 10
 
-[node name="Hand" parent="." index="10"]
+[node name="BodySprite" parent="." index="10"]
+scale = Vector2(-1, 1)
+texture = ExtResource("3_lp3ku")
+hframes = 14
+
+[node name="Hand" parent="." index="11"]
 position = Vector2(1, -8)
 
 [node name="Handmarker" parent="Hand" index="0"]
 position = Vector2(0, 0)
 
 [node name="hurtbox" type="Area2D" parent="Hand/Handmarker" index="0" node_paths=PackedStringArray("hitbox", "entity")]
+visible = false
 collision_layer = 0
 collision_mask = 16
 script = ExtResource("12_mp6s7")

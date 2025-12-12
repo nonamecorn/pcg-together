@@ -187,6 +187,9 @@ collision_mask = 10
 [node name="Hand" parent="." index="10"]
 position = Vector2(0, -7)
 
+[node name="Handmarker" parent="Hand" index="0"]
+position = Vector2(0, -3)
+
 [node name="BR180" parent="Hand/Handmarker" index="0" instance=ExtResource("18_dctwk")]
 
 [connection signal="timeout" from="FSM/Surround/changepath" to="FSM/Surround" method="_on_changepath_timeout"]

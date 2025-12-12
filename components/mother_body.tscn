@@ -30,10 +30,6 @@ position = Vector2(0, -3)
 rotation = 1.5708
 shape = SubResource("CapsuleShape2D_0qefb")
 
-[node name="BodySprite" type="Sprite2D" parent="."]
-position = Vector2(0, -16)
-texture = ExtResource("2_0qefb")
-
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 
 [node name="FSM" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
@@ -66,14 +62,6 @@ visible = false
 texture = ExtResource("6_x7ed4")
 script = ExtResource("4_6onur")
 
-[node name="Hand" type="Node2D" parent="." node_paths=PackedStringArray("cursor")]
-position = Vector2(0, -14)
-script = ExtResource("4_d2y0q")
-cursor = NodePath("../cursor")
-
-[node name="Handmarker" type="Marker2D" parent="Hand"]
-position = Vector2(7, 0)
-
 [node name="Pusher" type="Area2D" parent="."]
 collision_layer = 0
 collision_mask = 2
@@ -82,5 +70,17 @@ pushForce = 0.4
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Pusher"]
 shape = SubResource("CircleShape2D_x7ed4")
+
+[node name="BodySprite" type="Sprite2D" parent="."]
+position = Vector2(0, -16)
+texture = ExtResource("2_0qefb")
+
+[node name="Hand" type="Node2D" parent="." node_paths=PackedStringArray("cursor")]
+position = Vector2(0, -14)
+script = ExtResource("4_d2y0q")
+cursor = NodePath("../cursor")
+
+[node name="Handmarker" type="Marker2D" parent="Hand"]
+position = Vector2(7, 0)
 
 [connection signal="damaged" from="Hitbox" to="." method="_on_hitbox_damaged"]
