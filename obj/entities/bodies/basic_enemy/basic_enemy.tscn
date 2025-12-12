@@ -15,8 +15,8 @@
 [ext_resource type="Script" uid="uid://bsxhiboftuo1f" path="res://obj/entities/bodies/basic_enemy/panic_state.gd" id="6_pwmcd"]
 [ext_resource type="Script" uid="uid://d2eil3heten32" path="res://obj/entities/bodies/basic_enemy/surround_state.gd" id="7_u1xw8"]
 [ext_resource type="Script" uid="uid://xxrswto60gno" path="res://obj/entities/bodies/basic_enemy/retreat_state.gd" id="8_04aog"]
-[ext_resource type="PackedScene" uid="uid://busv75m2it7t8" path="res://obj/guns/bobogun.tscn" id="16_dctwk"]
 [ext_resource type="Texture2D" uid="uid://bee4og2kfd551" path="res://img/bodies/enemy/F_lag.png" id="17_ehey7"]
+[ext_resource type="PackedScene" uid="uid://4nnhn6wjky8e" path="res://obj/guns/br_180.tscn" id="18_dctwk"]
 [ext_resource type="Texture2D" uid="uid://c5wdhan472mjm" path="res://img/bodies/enemy/F_lag_n.png" id="18_qi43h"]
 
 [sub_resource type="CanvasTexture" id="CanvasTexture_v0268"]
@@ -76,13 +76,13 @@ texture = SubResource("CanvasTexture_ijrr7")
 [node name="FSM" parent="." index="3" node_paths=PackedStringArray("label", "initial_state")]
 script = ExtResource("3_javgc")
 label = NodePath("../Label")
-initial_state = NodePath("Turret")
+initial_state = NodePath("Patrol")
 
 [node name="Dead" parent="FSM" index="0" node_paths=PackedStringArray("perceptor", "ray", "gun", "animation", "handmarker")]
 script = ExtResource("4_uwxms")
 perceptor = NodePath("../../Perceptor")
 ray = NodePath("../../LOS_ray")
-gun = NodePath("../../Hand/Handmarker/bobogun")
+gun = NodePath("../../Hand/Handmarker/BR180")
 animation = NodePath("../../AnimationPlayer")
 handmarker = NodePath("../../Hand/Handmarker")
 
@@ -187,8 +187,7 @@ collision_mask = 10
 [node name="Hand" parent="." index="10"]
 position = Vector2(0, -7)
 
-[node name="bobogun" parent="Hand/Handmarker" index="0" instance=ExtResource("16_dctwk")]
-position = Vector2(-6, 0)
+[node name="BR180" parent="Hand/Handmarker" index="0" instance=ExtResource("18_dctwk")]
 
 [connection signal="timeout" from="FSM/Surround/changepath" to="FSM/Surround" method="_on_changepath_timeout"]
 [connection signal="timeout" from="FSM/Surround/attack" to="FSM/Surround" method="_on_attack_timeout"]

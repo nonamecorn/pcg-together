@@ -4,3 +4,6 @@ extends Entity
 
 func set_movement_target(target_point: Vector2):
 	nav_agent.target_position = target_point
+
+func mob(position):
+	$Perceptor.alert(position)

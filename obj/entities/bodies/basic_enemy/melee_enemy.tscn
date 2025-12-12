@@ -52,7 +52,7 @@ libraries = {
 [node name="FSM" parent="." index="3" node_paths=PackedStringArray("label", "initial_state")]
 script = ExtResource("3_7ocqv")
 label = NodePath("../Label")
-initial_state = NodePath("Turret")
+initial_state = NodePath("Patrol")
 
 [node name="Dead" parent="FSM" index="0" node_paths=PackedStringArray("perceptor", "ray", "gun", "animation", "handmarker")]
 script = ExtResource("4_sa105")

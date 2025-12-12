@@ -1,10 +1,13 @@
-[gd_scene load_steps=9 format=3 uid="uid://btyq8q6ypm13m"]
+[gd_scene load_steps=12 format=3 uid="uid://btyq8q6ypm13m"]
 
 [ext_resource type="PackedScene" uid="uid://b57eiw8isn0kd" path="res://lvls/layers.tscn" id="1_ig7tw"]
+[ext_resource type="PackedScene" uid="uid://cj42rivp6owbq" path="res://obj/entities/bodies/player/player.tscn" id="2_0xm2m"]
 [ext_resource type="Script" uid="uid://cuhlbnl6vl7gd" path="res://spawner.gd" id="2_h2yge"]
 [ext_resource type="Script" uid="uid://b1k2duwvmlj2y" path="res://director.gd" id="3_h2yge"]
 [ext_resource type="Script" uid="uid://c3che2yiumie7" path="res://build_up.gd" id="4_272bh"]
+[ext_resource type="PackedScene" uid="uid://b1d6mlonb7nwc" path="res://obj/entities/bodies/basic_enemy/basic_enemy.tscn" id="4_kek77"]
 [ext_resource type="Script" uid="uid://dvytaf6ndv6np" path="res://sustain_peak.gd" id="5_5vw27"]
+[ext_resource type="PackedScene" uid="uid://cic7vf68w7t3j" path="res://obj/entities/bodies/basic_enemy/melee_enemy.tscn" id="5_lquwl"]
 [ext_resource type="Script" uid="uid://dlklp5uybixw3" path="res://fade_peak.gd" id="6_kek77"]
 [ext_resource type="Script" uid="uid://dpofynmilgys4" path="res://relax.gd" id="7_4c57u"]
 
@@ -26,32 +29,56 @@ fog_density = 1.0
 
 [node name="layers" parent="." instance=ExtResource("1_ig7tw")]
 
+[node name="PanningCamera2D" parent="layers" index="2"]
+enabled = false
+
 [node name="CanvasModulate" type="CanvasModulate" parent="."]
 color = Color(0.7592972, 0.77366406, 0.7821263, 1)
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_h2yge")
 
-[node name="Spawner" type="Node" parent="."]
+[node name="Spawner" type="Node" parent="." node_paths=PackedStringArray("tilemap")]
+process_priority = 1
 script = ExtResource("2_h2yge")
+tilemap = NodePath("../layers/walls")
+juk = ExtResource("5_lquwl")
+robot = ExtResource("4_kek77")
+player = ExtResource("2_0xm2m")
 
-[node name="Director" type="Node" parent="."]
+[node name="Director" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
 script = ExtResource("3_h2yge")
+initial_state = NodePath("BuildUp")
 
-[node name="BuildUp" type="Node" parent="Director"]
+[node name="BuildUp" type="Node" parent="Director" node_paths=PackedStringArray("spawner")]
 script = ExtResource("4_272bh")
+spawner = NodePath("../../Spawner")
+
+[node name="Timer" type="Timer" parent="Director/BuildUp"]
+wait_time = 20.0
 
 [node name="SustainPeak" type="Node" parent="Director"]
 script = ExtResource("5_5vw27")
 
 [node name="Timer" type="Timer" parent="Director/SustainPeak"]
+wait_time = 3.0
+one_shot = true
 
 [node name="FadePeak" type="Node" parent="Director"]
 script = ExtResource("6_kek77")
+
+[node name="Timer" type="Timer" parent="Director/FadePeak"]
 
 [node name="Relax" type="Node" parent="Director"]
 script = ExtResource("7_4c57u")
 
 [node name="Timer" type="Timer" parent="Director/Relax"]
+wait_time = 30.0
+one_shot = true
+
+[connection signal="timeout" from="Director/BuildUp/Timer" to="Director/BuildUp" method="_on_timer_timeout"]
+[connection signal="timeout" from="Director/SustainPeak/Timer" to="Director/SustainPeak" method="_on_timer_timeout"]
+[connection signal="timeout" from="Director/FadePeak/Timer" to="Director/FadePeak" method="_on_timer_timeout"]
+[connection signal="timeout" from="Director/Relax/Timer" to="Director/Relax" method="_on_timer_timeout"]
 
 [editable path="layers"]
