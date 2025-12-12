@@ -20,6 +20,13 @@ public readonly struct CaConfig {
     /// Depth (in cells) to carve from each connector into the mask to keep portals open.
     public int ConnectorDepth { get; }
 
+    /// Creates a CA configuration with clamped/normalized parameters.
+    /// <param name="kernelSize">Neighbourhood size (square, odd, >= 3).</param>
+    /// <param name="birthLimit">Neighbours required for a dead cell to become a wall.</param>
+    /// <param name="survivalLimit">Neighbours required for a wall to remain.</param>
+    /// <param name="iterations">Number of simulation steps.</param>
+    /// <param name="initialWallProbability">Chance (0..1) for an unmasked cell to start as wall.</param>
+    /// <param name="connectorDepth">Cells to carve inward from each connector every step.</param>
     public CaConfig(int kernelSize, int birthLimit, int survivalLimit, int iterations, float initialWallProbability = 0.45f, int connectorDepth = 2) {
         KernelSize = MakeOdd(Math.Max(3, kernelSize));
         var maxNeighbours = KernelSize * KernelSize - 1;
@@ -50,6 +57,11 @@ public sealed class CaResult {
     /// Connectors used for post-merge stitching.
     public IReadOnlyList<CellConnector> Connectors { get; }
 
+    /// Builds a CA result container.
+    /// <param name="cellIndex">Voronoi cell index.</param>
+    /// <param name="region">World-space region covered by the tile grid.</param>
+    /// <param name="tiles">Final wall grid (1=wall, 0=floor).</param>
+    /// <param name="connectors">Connectors used to keep portals open.</param>
     public CaResult(int cellIndex, Rect2I region, byte[,] tiles, IReadOnlyList<CellConnector> connectors) {
         CellIndex = cellIndex;
         Region = region;
@@ -75,43 +87,50 @@ public static class CellularAutomata {
         var current = new byte[width, height];
         var next = new byte[width, height];
         var offsets = BuildNeighbourOffsets(config.KernelSize);
+        var carveMask = BuildConnectorCarveMask(task.Connectors, mask, config.ConnectorDepth);
 
         var rng = new DeterministicRng(task.CaSeed);
 
         // Initial fill with deterministic noise; masked-out cells stay walls.
         for (var x = 0; x < width; x++) {
             for (var y = 0; y < height; y++) {
-                if (mask[x, y] == 0) {
+                if (mask[x, y] == 0 && carveMask[x, y] == 0) {
                     current[x, y] = 1;
                     continue;
                 }
 
-                current[x, y] = rng.NextFloat() < config.InitialWallProbability ? (byte)1 : (byte)0;
+                if (carveMask[x, y] == 1) {
+                    current[x, y] = 0;
+                } else {
+                    current[x, y] = rng.NextFloat() < config.InitialWallProbability ? (byte)1 : (byte)0;
+                }
             }
         }
 
-        ApplyConnectors(task.Connectors, mask, current, config.ConnectorDepth);
-
         for (var iter = 0; iter < config.Iterations; iter++) {
-            Step(mask, current, next, offsets, config.BirthLimit, config.SurvivalLimit);
-            ApplyConnectors(task.Connectors, mask, next, config.ConnectorDepth);
+            Step(mask, carveMask, current, next, offsets, config.BirthLimit, config.SurvivalLimit);
             Swap(ref current, ref next);
         }
 
         return new CaResult(task.CellIndex, task.Region, current, task.Connectors);
     }
 
-    private static void Step(byte[,] mask, byte[,] src, byte[,] dst, List<Vector2I> offsets, int birthLimit, int survivalLimit) {
+    private static void Step(byte[,] mask, byte[,] carveMask, byte[,] src, byte[,] dst, List<Vector2I> offsets, int birthLimit, int survivalLimit) {
         var width = mask.GetLength(0);
         var height = mask.GetLength(1);
         for (var x = 0; x < width; x++) {
             for (var y = 0; y < height; y++) {
+                if (carveMask[x, y] == 1) {
+                    dst[x, y] = 0;
+                    continue;
+                }
+
                 if (mask[x, y] == 0) {
                     dst[x, y] = 1;
                     continue;
                 }
 
-                var neighbours = CountNeighbours(mask, src, x, y, offsets);
+                var neighbours = CountNeighbours(mask, carveMask, src, x, y, offsets);
                 var alive = src[x, y] == 1;
                 if (alive) {
                     dst[x, y] = (byte)(neighbours >= survivalLimit ? 1 : 0);
@@ -123,7 +142,7 @@ public static class CellularAutomata {
         }
     }
 
-    private static int CountNeighbours(byte[,] mask, byte[,] grid, int x, int y, List<Vector2I> offsets) {
+    private static int CountNeighbours(byte[,] mask, byte[,] carveMask, byte[,] grid, int x, int y, List<Vector2I> offsets) {
         var width = mask.GetLength(0);
         var height = mask.GetLength(1);
         var count = 0;
@@ -136,8 +155,12 @@ public static class CellularAutomata {
                 continue;
             }
 
-            if (mask[nx, ny] == 0) {
+            if (mask[nx, ny] == 0 && carveMask[nx, ny] == 0) {
                 count++; // masked-out tiles behave like walls
+                continue;
+            }
+
+            if (carveMask[nx, ny] == 1) {
                 continue;
             }
 
@@ -163,34 +186,67 @@ public static class CellularAutomata {
         return offsets;
     }
 
-    private static void ApplyConnectors(IReadOnlyList<CellConnector> connectors, byte[,] mask, byte[,] grid, int depth) {
+    private static byte[,] BuildConnectorCarveMask(IReadOnlyList<CellConnector> connectors, byte[,] mask, int depth) {
+        var width = mask.GetLength(0);
+        var height = mask.GetLength(1);
+        var carve = new byte[width, height];
         if (depth <= 0 || connectors.Count == 0) {
-            return;
+            return carve;
         }
-
-        var width = grid.GetLength(0);
-        var height = grid.GetLength(1);
 
         foreach (var connector in connectors) {
-            Carve(connector.LocalPoint, connector.DirectionIntoCell, depth, mask, grid, width, height);
+            CarveLine(connector.LocalPoint, connector.DirectionIntoCell, depth, mask, carve);
         }
+
+        return carve;
     }
 
-    private static void Carve(Vector2I start, Vector2 direction, int depth, byte[,] mask, byte[,] grid, int width, int height) {
+    private static void CarveLine(Vector2I start, Vector2 direction, int depth, byte[,] mask, byte[,] carve) {
         var dirNorm = direction;
         if (dirNorm.LengthSquared() < 1e-6f) {
             dirNorm = Vector2.Right;
         }
         dirNorm = dirNorm.Normalized();
 
-        var pos = new Vector2(start.X + 0.5f, start.Y + 0.5f);
-        for (var i = 0; i < depth; i++) {
-            var ix = Mathf.RoundToInt(pos.X);
-            var iy = Mathf.RoundToInt(pos.Y);
-            if (ix >= 0 && iy >= 0 && ix < width && iy < height && mask[ix, iy] != 0) {
-                grid[ix, iy] = 0;
+        var endOffset = new Vector2I(
+            Mathf.FloorToInt(dirNorm.X * depth),
+            Mathf.FloorToInt(dirNorm.Y * depth)
+        );
+        var end = start + endOffset;
+        foreach (var cell in RasterLine(start, end)) {
+            if (cell.X < 0 || cell.Y < 0 || cell.X >= carve.GetLength(0) || cell.Y >= carve.GetLength(1)) {
+                continue;
             }
-            pos += dirNorm;
+            if (mask[cell.X, cell.Y] == 0) {
+                continue;
+            }
+            carve[cell.X, cell.Y] = 1;
+        }
+    }
+
+    private static IEnumerable<Vector2I> RasterLine(Vector2I a, Vector2I b) {
+        var x0 = a.X;
+        var y0 = a.Y;
+        var x1 = b.X;
+        var y1 = b.Y;
+        var dx = Mathf.Abs(x1 - x0);
+        var sx = x0 < x1 ? 1 : -1;
+        var dy = -Mathf.Abs(y1 - y0);
+        var sy = y0 < y1 ? 1 : -1;
+        var err = dx + dy;
+
+        while (true) {
+            yield return new Vector2I(x0, y0);
+            if (x0 == x1 && y0 == y1) break;
+            var e2 = 2 * err;
+            if (e2 >= dy) {
+                err += dy;
+                x0 += sx;
+            }
+            if (e2 <= dx) {
+                err += dx;
+                y0 += sy;
+            }
         }
     }
 

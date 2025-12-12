@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Godot;
 
 namespace PCGTogether.lvls.gen;
@@ -65,6 +66,47 @@ public sealed class VoronoiCA {
         }
 
         return new VoronoiCA(seeds, diagram.Size, ownership, tasks);
+    }
+
+    /// Runs cellular automata for all cells using a limited degree of parallelism and merges the outputs.
+    /// <param name="config">CA parameters.</param>
+    /// <param name="maxDegreeOfParallelism">Cap on concurrent workers; 0 or less uses Environment.ProcessorCount.</param>
+    /// <returns>Merged CA map and per-cell results.</returns>
+    public CaRunResult RunAll(CaConfig config, int maxDegreeOfParallelism = 0) {
+        var results = new CaResult[_cellTasks.Count];
+        if (_cellTasks.Count == 0) {
+            return new CaRunResult(CanvasSize, OwnershipGrid, Array.Empty<CaResult>(), new byte[CanvasSize.X, CanvasSize.Y]);
+        }
+
+        var dop = maxDegreeOfParallelism > 0 ? maxDegreeOfParallelism : System.Environment.ProcessorCount;
+        var options = new ParallelOptions { MaxDegreeOfParallelism = dop };
+
+        Parallel.For(0, _cellTasks.Count, options, i => {
+            results[i] = CellularAutomata.Run(_cellTasks[i], config);
+        });
+
+        var merged = MergeResults(results, CanvasSize, OwnershipGrid);
+        return new CaRunResult(CanvasSize, OwnershipGrid, results, merged);
+    }
+
+    private static byte[,] MergeResults(IReadOnlyList<CaResult> results, Vector2I size, int[,] ownership) {
+        var final = new byte[size.X, size.Y];
+        for (var i = 0; i < results.Count; i++) {
+            var res = results[i];
+            var region = res.Region;
+            for (var x = 0; x < region.Size.X; x++) {
+                var worldX = region.Position.X + x;
+                if (worldX < 0 || worldX >= size.X) continue;
+                for (var y = 0; y < region.Size.Y; y++) {
+                    var worldY = region.Position.Y + y;
+                    if (worldY < 0 || worldY >= size.Y) continue;
+                    if (ownership[worldX, worldY] != res.CellIndex) continue;
+                    final[worldX, worldY] = res.Tiles[x, y];
+                }
+            }
+        }
+
+        return final;
     }
 
     private static Rect2I PadBounds(Rect2I bounds, Vector2I canvasSize, int padding) {
@@ -177,5 +219,21 @@ public readonly struct CellConnector {
         WorldPoint = worldPoint;
         LocalPoint = localPoint;
         DirectionIntoCell = directionIntoCell;
+    }
+}
+
+/// Aggregated CA output for all Voronoi cells.
+public sealed class CaRunResult {
+    public Vector2I CanvasSize { get; }
+    public int[,] Ownership { get; }
+    public IReadOnlyList<CaResult> CellResults { get; }
+    /// Final merged map (1=wall, 0=floor) in canvas space.
+    public byte[,] Merged { get; }
+
+    public CaRunResult(Vector2I canvasSize, int[,] ownership, IReadOnlyList<CaResult> cellResults, byte[,] merged) {
+        CanvasSize = canvasSize;
+        Ownership = ownership;
+        CellResults = cellResults;
+        Merged = merged;
     }
 }
