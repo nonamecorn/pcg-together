@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://cj42rivp6owbq"]
+[gd_scene load_steps=17 format=3 uid="uid://cj42rivp6owbq"]
 
 [ext_resource type="PackedScene" uid="uid://vxlnckbeqm4y" path="res://components/mother_body.tscn" id="1_e42ip"]
 [ext_resource type="Script" uid="uid://bm3wjni3c3813" path="res://obj/entities/bodies/player/player.gd" id="2_kpwks"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" uid="uid://6qchh0308yjc" path="res://obj/entities/bodies/player/camera_2d.gd" id="5_w8mye"]
 [ext_resource type="PackedScene" uid="uid://dhhg35brss5lu" path="res://UI/inventory.tscn" id="7_bmp72"]
 [ext_resource type="Texture2D" uid="uid://bd8c6yrx713ol" path="res://img/misc/256x256 textures (101).png" id="10_jevgb"]
+[ext_resource type="Script" uid="uid://brt0p1l85c55a" path="res://obj/entities/bodies/player/compass.gd" id="11_8mvx4"]
 
 [sub_resource type="CanvasTexture" id="CanvasTexture_cnqlk"]
 diffuse_texture = ExtResource("3_r4var")
@@ -135,3 +136,7 @@ range_item_cull_mask = 2
 shadow_item_cull_mask = 2
 texture = ExtResource("10_jevgb")
 height = 30.0
+
+[node name="Compass" type="Polygon2D" parent="." index="12"]
+polygon = PackedVector2Array(37, -20, 44, 0, 37, 18, 58, 0)
+script = ExtResource("11_8mvx4")
